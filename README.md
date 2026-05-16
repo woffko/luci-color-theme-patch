@@ -12,7 +12,7 @@ generated sysupgrade image contain the patched LuCI files immediately.
 For local builds:
 
 ```sh
-src-link lucicolor /home/w0w/build/openwrt-mtk-25.12.2/luci-color-patch
+src-link lucicolor /home/w0w/luci-color-patch
 ```
 
 For GitHub-backed builds after the remote repository is created:
@@ -31,4 +31,3 @@ Then run:
 
 Enable `PACKAGE_luci-color-patch=y` in `.config` and rebuild LuCI/image
 artifacts.
-
