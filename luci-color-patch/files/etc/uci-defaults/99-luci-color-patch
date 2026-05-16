@@ -1,0 +1,8 @@
+#!/bin/sh
+
+[ -x /usr/libexec/luci-color-patch/apply ] || exit 0
+
+NO_BACKUP=1 RESTART_SERVICES=0 /usr/libexec/luci-color-patch/apply || exit 0
+
+exit 0
+

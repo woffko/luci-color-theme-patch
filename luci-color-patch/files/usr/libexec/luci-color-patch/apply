@@ -1,0 +1,262 @@
+#!/bin/sh
+
+set -eu
+
+ROOT="${ROOT:-/}"
+LUCI_CFG="${LUCI_CFG:-$ROOT/etc/config/luci}"
+SYSTEM_JS="${SYSTEM_JS:-$ROOT/www/luci-static/resources/view/system/system.js}"
+HEADER_UT="${HEADER_UT:-$ROOT/usr/share/ucode/luci/template/themes/bootstrap/header.ut}"
+CASCADE_CSS="${CASCADE_CSS:-$ROOT/www/luci-static/bootstrap/cascade.css}"
+
+STAMP="luci-colorpatch-v2"
+TS="$(date +%Y%m%d-%H%M%S 2>/dev/null || echo now)"
+BACKUP_DIR="${BACKUP_DIR:-$ROOT/etc/luci-color-patch/backups/$TS}"
+NO_BACKUP="${NO_BACKUP:-0}"
+RESTART_SERVICES="${RESTART_SERVICES:-1}"
+
+require_file() {
+	[ -f "$1" ] || {
+		echo "Missing required file: $1" >&2
+		exit 1
+	}
+}
+
+backup_file() {
+	[ "$NO_BACKUP" = "1" ] && return 0
+
+	src="$1"
+	dst="$BACKUP_DIR$src"
+
+	mkdir -p "$(dirname "$dst")"
+	cp -fp "$src" "$dst"
+}
+
+append_css_patch() {
+	cat >> "$CASCADE_CSS" <<'EOF'
+
+/* luci-colorpatch-v2 */
+:root {
+	--header-background-high: var(--primary-color-medium);
+	--header-background-low: var(--primary-color-low);
+	--header-link-color: var(--on-primary-color);
+	--header-brand-color: var(--on-primary-color);
+	--header-hover-background: hsla(var(--background-color-high-hsl), .12);
+	--header-active-background: hsla(var(--background-color-high-hsl), .2);
+	--header-shadow-color: hsla(var(--border-color-low-hsl), .25);
+}
+
+:root[data-darkmode="true"] {
+	--header-hover-background: hsla(var(--background-color-high-hsl), .08);
+	--header-active-background: hsla(var(--background-color-high-hsl), .14);
+}
+
+:root[data-accent="red"] {
+	--primary-color-high: #d84b4b;
+	--primary-color-medium: #c53a3a;
+	--primary-color-low: #a92a2a;
+}
+
+:root[data-accent="sky"] {
+	--primary-color-high: #23a8e0;
+	--primary-color-medium: #168ec1;
+	--primary-color-low: #0f739e;
+}
+
+:root[data-accent="green"] {
+	--primary-color-high: #2f9f5a;
+	--primary-color-medium: #26884b;
+	--primary-color-low: #1d6b3a;
+}
+
+:root[data-accent="yellow"] {
+	--primary-color-high: #b08a00;
+	--primary-color-medium: #967500;
+	--primary-color-low: #7b5f00;
+}
+
+:root[data-accent="orange"] {
+	--primary-color-high: #cf7a12;
+	--primary-color-medium: #b8670b;
+	--primary-color-low: #965106;
+}
+
+header {
+	color: var(--header-link-color);
+	background: linear-gradient(var(--header-background-high), var(--header-background-low));
+	box-shadow: 0 1px 3px var(--header-shadow-color), inset 0 -1px 0 hsla(var(--border-color-low-hsl), .01);
+}
+
+header a {
+	color: var(--header-link-color);
+}
+
+header .brand:hover,
+header ul .active > a {
+	background-color: var(--header-hover-background);
+	color: var(--header-brand-color);
+}
+
+header .brand {
+	color: var(--header-brand-color);
+}
+
+.nav a:hover {
+	color: var(--header-brand-color);
+}
+
+.nav .active > a {
+	background-color: var(--header-active-background);
+}
+/* /luci-colorpatch-v2 */
+EOF
+}
+
+patch_luci_config() {
+	if grep -qE '^[[:space:]]*option[[:space:]]+accent[[:space:]]+' "$LUCI_CFG"; then
+		return
+	fi
+
+	tmp="$LUCI_CFG.tmp.$$"
+	awk '
+		$1 == "config" && $2 == "core" && $3 == "main" { in_main = 1 }
+		in_main && $1 == "config" && !($2 == "core" && $3 == "main") && !done {
+			print "\toption accent blue"
+			done = 1
+			in_main = 0
+		}
+		{
+			print
+		}
+		END {
+			if (in_main && !done)
+				print "\toption accent blue"
+		}
+	' "$LUCI_CFG" > "$tmp"
+	mv "$tmp" "$LUCI_CFG"
+}
+
+patch_system_js() {
+	grep -q "Interface Color" "$SYSTEM_JS" && return
+
+	tmp="$SYSTEM_JS.tmp.$$"
+	insert_block=$(cat <<'EOF'
+		o = s.taboption('language', form.ListValue, '_accent', _('Interface Color'),
+			_('Changes the LuCI Bootstrap accent color used for navigation, links and buttons.'));
+		o.uciconfig = 'luci';
+		o.ucisection = 'main';
+		o.ucioption = 'accent';
+		o.default = 'blue';
+		o.value('blue', _('Blue'));
+		o.value('sky', _('Light Blue'));
+		o.value('green', _('Green'));
+		o.value('red', _('Red'));
+		o.value('yellow', _('Yellow'));
+		o.value('orange', _('Orange'));
+
+EOF
+)
+
+	awk -v block="$insert_block" '
+		{
+			line = $0
+			if (!done && sub(/o\.value\(uci\.get\('\''luci'\'',[[:space:]]*'\''themes'\'',[[:space:]]*t\),[[:space:]]*t\);/, "&" block, line)) {
+				done = 1
+			}
+			print line
+		}
+		END {
+			if (!done)
+				exit 1
+		}
+	' "$SYSTEM_JS" > "$tmp" || {
+		rm -f "$tmp"
+		echo "Failed to inject accent selector into $SYSTEM_JS" >&2
+		exit 1
+	}
+
+	mv "$tmp" "$SYSTEM_JS"
+}
+
+patch_header_ut() {
+	grep -q 'data-accent="{{ safeaccent }}"' "$HEADER_UT" && return
+
+	tmp="$HEADER_UT.tmp.$$"
+	awk '
+		{
+			print
+			if ($0 ~ /const darkpref = / && !done_block) {
+				print "\tconst accent = uci.get('\''luci'\'', '\''main'\'', '\''accent'\'');"
+				print "\tconst safeaccent = ("
+				print "\t\taccent == '\''red'\'' || accent == '\''sky'\'' || accent == '\''green'\'' ||"
+				print "\t\taccent == '\''yellow'\'' || accent == '\''orange'\'' || accent == '\''blue'\''"
+				print "\t) ? accent : '\''blue'\'';"
+				done_block = 1
+			}
+		}
+	' "$HEADER_UT" > "$tmp"
+	mv "$tmp" "$HEADER_UT"
+
+	tmp="$HEADER_UT.tmp.$$"
+	awk '
+		{
+			line = $0
+
+			if (!done && line ~ /<html[[:space:]]+lang="\{\{ dispatcher\.lang \}\}"/) {
+				if (line !~ /data-accent="\{\{ safeaccent \}\}"/)
+					sub(/<html[[:space:]]+lang="\{\{ dispatcher\.lang \}\}"/, "& data-accent=\"{{ safeaccent }}\"", line)
+
+				done = 1
+			}
+
+			print line
+		}
+		END {
+			if (!done)
+				exit 1
+		}
+	' "$HEADER_UT" > "$tmp" || {
+		rm -f "$tmp"
+		echo "Failed to inject data-accent into $HEADER_UT" >&2
+		exit 1
+	}
+
+	mv "$tmp" "$HEADER_UT"
+}
+
+patch_cascade_css() {
+	grep -q "$STAMP" "$CASCADE_CSS" && return
+	append_css_patch
+}
+
+restart_services() {
+	[ "$RESTART_SERVICES" = "1" ] || return 0
+
+	command -v uci >/dev/null 2>&1 && uci commit luci || true
+	[ -x "$ROOT/etc/init.d/uhttpd" ] && "$ROOT/etc/init.d/uhttpd" restart || true
+	rm -f "$ROOT/tmp/luci-indexcache" 2>/dev/null || true
+}
+
+main() {
+	require_file "$LUCI_CFG"
+	require_file "$SYSTEM_JS"
+	require_file "$HEADER_UT"
+	require_file "$CASCADE_CSS"
+
+	backup_file "$LUCI_CFG"
+	backup_file "$SYSTEM_JS"
+	backup_file "$HEADER_UT"
+	backup_file "$CASCADE_CSS"
+
+	patch_luci_config
+	patch_system_js
+	patch_header_ut
+	patch_cascade_css
+	restart_services
+
+	echo "LuCI color patch applied."
+	echo "Theme support: bootstrap"
+	echo "Config option: luci.main.accent"
+}
+
+main "$@"
+
