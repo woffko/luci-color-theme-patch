@@ -159,7 +159,7 @@ EOF
 	awk -v block="$insert_block" '
 		{
 			line = $0
-			if (!done && sub(/o\.value\(uci\.get\('\''luci'\'',[[:space:]]*'\''themes'\'',[[:space:]]*t\),[[:space:]]*t\);/, "&" block, line)) {
+			if (!done && sub(/o\.value\(uci\.get\('\''luci'\'',[[:space:]]*'\''themes'\'',[[:space:]]*t\),[[:space:]]*t\);/, "&\n" block, line)) {
 				done = 1
 			}
 			print line
@@ -259,4 +259,3 @@ main() {
 }
 
 main "$@"
-
