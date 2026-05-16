@@ -9,16 +9,16 @@ generated sysupgrade image contain the patched LuCI files immediately.
 
 ## OpenWrt Feed
 
-For local builds:
+For GitHub-backed builds:
+
+```sh
+src-git lucicolor https://github.com/woffko/luci-color-theme-patch.git
+```
+
+For local development:
 
 ```sh
 src-link lucicolor /home/w0w/luci-color-patch
-```
-
-For GitHub-backed builds after the remote repository is created:
-
-```sh
-src-git lucicolor https://github.com/woffko/luci-color-patch.git
 ```
 
 Then run:
