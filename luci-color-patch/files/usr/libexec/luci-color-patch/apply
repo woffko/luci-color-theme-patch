@@ -8,7 +8,7 @@ SYSTEM_JS="${SYSTEM_JS:-$ROOT/www/luci-static/resources/view/system/system.js}"
 HEADER_UT="${HEADER_UT:-$ROOT/usr/share/ucode/luci/template/themes/bootstrap/header.ut}"
 CASCADE_CSS="${CASCADE_CSS:-$ROOT/www/luci-static/bootstrap/cascade.css}"
 
-STAMP="luci-colorpatch-v5"
+STAMP="luci-colorpatch-v6"
 TS="$(date +%Y%m%d-%H%M%S 2>/dev/null || echo now)"
 BACKUP_DIR="${BACKUP_DIR:-$ROOT/etc/luci-color-patch/backups/$TS}"
 NO_BACKUP="${NO_BACKUP:-0}"
@@ -34,9 +34,11 @@ backup_file() {
 append_css_patch() {
 	cat >> "$CASCADE_CSS" <<'EOF'
 
-/* luci-colorpatch-v5 */
+/* luci-colorpatch-v6 */
 :root {
 	--on-primary-color: #ffffff;
+	--primary-readable-color: var(--primary-color-high);
+	--primary-readable-hover-color: var(--primary-readable-color);
 	--header-background-high: var(--primary-color-medium);
 	--header-background-low: var(--primary-color-low);
 	--header-link-color: var(--on-primary-color);
@@ -44,11 +46,26 @@ append_css_patch() {
 	--header-hover-background: hsla(var(--background-color-high-hsl), .12);
 	--header-active-background: hsla(var(--background-color-high-hsl), .2);
 	--header-shadow-color: hsla(var(--border-color-low-hsl), .25);
+	--menu-background-color: #333333;
+	--menu-border-color: rgba(0, 0, 0, .35);
+	--menu-text-color: #d1d5db;
+	--menu-muted-text-color: #aeb4bd;
+	--menu-hover-background: #242424;
+	--menu-hover-text-color: #ffffff;
+	--menu-active-background: #202020;
+	--menu-active-text-color: #ffffff;
+	--menu-active-indicator-color: var(--primary-color-medium);
+	--accent-overlay-background: linear-gradient(rgba(0, 0, 0, .22), rgba(0, 0, 0, .22)), linear-gradient(135deg, var(--primary-color-low), var(--primary-color-medium));
 }
 
 :root[data-darkmode="true"] {
 	--header-hover-background: hsla(var(--background-color-high-hsl), .08);
 	--header-active-background: hsla(var(--background-color-high-hsl), .14);
+	--menu-background-color: #303030;
+	--menu-border-color: rgba(0, 0, 0, .55);
+	--menu-hover-background: #242424;
+	--menu-active-background: #1f1f1f;
+	--accent-overlay-background: linear-gradient(rgba(0, 0, 0, .34), rgba(0, 0, 0, .34)), linear-gradient(135deg, var(--primary-color-low), var(--primary-color-medium));
 }
 
 :root[data-accent="blue"] {
@@ -367,6 +384,127 @@ append_css_patch() {
 	--header-shadow-color: rgba(17, 24, 39, .18);
 }
 
+:root:not([data-darkmode="true"])[data-accent="sky"] {
+	--primary-readable-color: #0f739e;
+}
+
+:root:not([data-darkmode="true"])[data-accent="cyan"] {
+	--primary-readable-color: #0e7490;
+}
+
+:root:not([data-darkmode="true"])[data-accent="teal"] {
+	--primary-readable-color: #0f766e;
+}
+
+:root:not([data-darkmode="true"])[data-accent="emerald"] {
+	--primary-readable-color: #047857;
+}
+
+:root:not([data-darkmode="true"])[data-accent="green"] {
+	--primary-readable-color: #1d6b3a;
+}
+
+:root:not([data-darkmode="true"])[data-accent="mint"] {
+	--primary-readable-color: #047857;
+}
+
+:root:not([data-darkmode="true"])[data-accent="lime"] {
+	--primary-readable-color: #4d7c0f;
+}
+
+:root:not([data-darkmode="true"])[data-accent="yellow"] {
+	--primary-readable-color: #7b5f00;
+}
+
+:root:not([data-darkmode="true"])[data-accent="amber"] {
+	--primary-readable-color: #b45309;
+}
+
+:root:not([data-darkmode="true"])[data-accent="orange"] {
+	--primary-readable-color: #965106;
+}
+
+:root:not([data-darkmode="true"])[data-accent="coral"] {
+	--primary-readable-color: #c2410c;
+}
+
+:root:not([data-darkmode="true"])[data-accent="red"] {
+	--primary-readable-color: #c53a3a;
+}
+
+:root:not([data-darkmode="true"])[data-accent="rose"] {
+	--primary-readable-color: #e11d48;
+}
+
+:root:not([data-darkmode="true"])[data-accent="pink"] {
+	--primary-readable-color: #db2777;
+}
+
+:root:not([data-darkmode="true"])[data-accent="fuchsia"] {
+	--primary-readable-color: #c026d3;
+}
+
+:root:not([data-darkmode="true"])[data-accent="purple"] {
+	--primary-readable-color: #9333ea;
+}
+
+:root:not([data-darkmode="true"])[data-accent="violet"] {
+	--primary-readable-color: #7c3aed;
+}
+
+:root:not([data-darkmode="true"])[data-accent="indigo"] {
+	--primary-readable-color: #4f46e5;
+}
+
+:root:not([data-darkmode="true"])[data-accent="white"],
+:root:not([data-darkmode="true"])[data-accent="cream"],
+:root:not([data-darkmode="true"])[data-accent="sand"],
+:root:not([data-darkmode="true"])[data-accent="gold"],
+:root:not([data-darkmode="true"])[data-accent="tangerine"],
+:root:not([data-darkmode="true"])[data-accent="lavender"] {
+	--primary-readable-color: #111827;
+}
+
+:root:not([data-darkmode="true"])[data-accent="silver"] {
+	--primary-readable-color: #64748b;
+}
+
+:root:not([data-darkmode="true"])[data-accent="tan"] {
+	--primary-readable-color: #8b5e34;
+}
+
+:root:not([data-darkmode="true"])[data-accent="scarlet"] {
+	--primary-readable-color: #dc2626;
+}
+
+:root:not([data-darkmode="true"])[data-accent="orchid"] {
+	--primary-readable-color: #c026d3;
+}
+
+:root:not([data-darkmode="true"])[data-accent="mauve"] {
+	--primary-readable-color: #9333ea;
+}
+
+:root:not([data-darkmode="true"])[data-accent="periwinkle"] {
+	--primary-readable-color: #4f46e5;
+}
+
+:root:not([data-darkmode="true"])[data-accent="cobalt"] {
+	--primary-readable-color: #2563eb;
+}
+
+:root:not([data-darkmode="true"])[data-accent="azure"] {
+	--primary-readable-color: #0369a1;
+}
+
+:root:not([data-darkmode="true"])[data-accent="ocean"] {
+	--primary-readable-color: #0e7490;
+}
+
+:root:not([data-darkmode="true"])[data-accent="olive"] {
+	--primary-readable-color: #556b2f;
+}
+
 :root[data-darkmode="true"][data-accent="blue"] {
 	--primary-color-high: #60a5fa;
 }
@@ -545,7 +683,105 @@ header .brand {
 .nav .active > a {
 	background-color: var(--header-active-background);
 }
-/* /luci-colorpatch-v5 */
+
+#maincontent a:not(.btn):not(.cbi-button) {
+	color: var(--primary-readable-color);
+}
+
+#maincontent a:not(.btn):not(.cbi-button):hover {
+	color: var(--primary-readable-hover-color);
+}
+
+header .nav .dropdown-menu {
+	background: var(--menu-background-color);
+	border-color: var(--menu-border-color);
+	box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+}
+
+header .nav .dropdown-menu li a,
+header .nav .dropdown-menu a.menu {
+	color: var(--menu-text-color);
+	text-shadow: none;
+}
+
+header .nav .dropdown-menu li a:hover,
+header .nav .dropdown-menu li a:focus {
+	background: var(--menu-hover-background);
+	color: var(--menu-hover-text-color);
+	text-decoration: none;
+}
+
+header .nav .dropdown-menu .active > a,
+header .nav .dropdown-menu li.active > a,
+header .nav .dropdown-menu .active > a:hover,
+header .nav .dropdown-menu li.active > a:hover,
+header .nav .dropdown-menu .active > a:focus,
+header .nav .dropdown-menu li.active > a:focus {
+	background: var(--menu-active-background);
+	color: var(--menu-active-text-color);
+	box-shadow: inset 3px 0 0 var(--menu-active-indicator-color);
+	text-shadow: none;
+}
+
+.cbi-dropdown[open] > ul.dropdown {
+	border-color: var(--border-color-high);
+	box-shadow: 0 2px 6px hsla(var(--border-color-low-hsl), .35);
+}
+
+.cbi-dropdown[open] > ul.dropdown > li {
+	color: var(--text-color-high);
+}
+
+.cbi-dropdown[open] > ul.dropdown > li.focus,
+.cbi-dropdown[open] > ul.dropdown > li:hover {
+	background: var(--background-color-medium);
+	color: var(--text-color-highest);
+}
+
+.cbi-dropdown[open] > ul.dropdown > li[selected],
+.cbi-dropdown[open] > ul.dropdown > li[selected].focus,
+.cbi-dropdown[open] > ul.dropdown > li[selected]:hover {
+	background: var(--menu-active-background);
+	color: var(--menu-active-text-color);
+	box-shadow: inset 3px 0 0 var(--menu-active-indicator-color);
+}
+
+.tabs > li,
+.cbi-tabmenu > li {
+	color: var(--primary-readable-color);
+}
+
+.btn.primary,
+.cbi-button-action,
+.cbi-button-apply,
+.cbi-button-reload,
+.cbi-button-edit {
+	--on-color: var(--primary-readable-color);
+	border-color: var(--primary-readable-color);
+}
+
+.btn.primary.important,
+.cbi-button-action.important,
+.cbi-page-actions .cbi-button-apply,
+.cbi-section-actions .cbi-button-edit {
+	--on-color: var(--on-primary-color);
+	border-color: var(--primary-color-high);
+}
+
+body.modal-overlay-active #modal_overlay {
+	background: var(--accent-overlay-background);
+}
+
+#modal_overlay > .modal.login {
+	box-shadow: 0 2px 18px rgba(0, 0, 0, .45), 0 0 0 1px rgba(255, 255, 255, .18);
+}
+
+#modal_overlay > .modal.login > button.important {
+	background: linear-gradient(var(--primary-color-medium), var(--primary-color-low));
+	border-color: var(--primary-color-high);
+	color: var(--on-primary-color);
+}
+/* /luci-colorpatch-v6 */
 EOF
 }
 
