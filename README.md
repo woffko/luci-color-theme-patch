@@ -36,6 +36,7 @@ One APK is therefore used for the main OpenWrt 25.x targets, including x86/64,
 ramips/mt7621, mediatek/filogic, ath79/generic, ipq40xx/generic, ipq806x,
 ipq807x, mvebu, rockchip/armv8 and bcm27xx. The target system still needs the
 matching LuCI packages from its own OpenWrt repositories.
+Tested on OpenWrt 25.12.2 through 25.12.5.
 
 ## Accent Values
 
