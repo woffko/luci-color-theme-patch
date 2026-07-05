@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-color-patch
 PKG_VERSION:=1.2.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
-PKG_MAINTAINER:=woffko
 PKG_LICENSE:=MIT
+PKG_LICENSE_FILES:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -13,6 +13,8 @@ define Package/luci-color-patch
   SECTION:=luci
   CATEGORY:=LuCI
   TITLE:=LuCI Bootstrap accent color patch
+  URL:=https://github.com/woffko/luci-color-theme-patch
+  MAINTAINER:=woffko
   DEPENDS:=+luci-base +luci-mod-system +luci-theme-bootstrap
   PKGARCH:=all
 endef
