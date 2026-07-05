@@ -92,6 +92,14 @@ apk add --allow-untrusted --force-overwrite /etc/luci-color-patch/luci-color-pat
 This intentionally bypasses package signing for the preserved local APK and
 allows overwriting the package's own restored files.
 
+## Attended Sysupgrade
+
+This package is not part of the official OpenWrt package repositories and is
+unlikely to be accepted upstream in this form. When using LuCI Attended
+Sysupgrade, deselect or disable `luci-color-patch` in the requested package
+list before starting the upgrade. The selfrestore variant preserves its local
+APK cache and reinstalls the package on first boot after sysupgrade.
+
 ## OpenWrt Feed
 
 For GitHub-backed builds:
