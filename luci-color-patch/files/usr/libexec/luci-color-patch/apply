@@ -8,7 +8,7 @@ SYSTEM_JS="${SYSTEM_JS:-$ROOT/www/luci-static/resources/view/system/system.js}"
 HEADER_UT="${HEADER_UT:-$ROOT/usr/share/ucode/luci/template/themes/bootstrap/header.ut}"
 CASCADE_CSS="${CASCADE_CSS:-$ROOT/www/luci-static/bootstrap/cascade.css}"
 
-STAMP="luci-colorpatch-v2"
+STAMP="luci-colorpatch-v4"
 TS="$(date +%Y%m%d-%H%M%S 2>/dev/null || echo now)"
 BACKUP_DIR="${BACKUP_DIR:-$ROOT/etc/luci-color-patch/backups/$TS}"
 NO_BACKUP="${NO_BACKUP:-0}"
@@ -34,7 +34,7 @@ backup_file() {
 append_css_patch() {
 	cat >> "$CASCADE_CSS" <<'EOF'
 
-/* luci-colorpatch-v2 */
+/* luci-colorpatch-v4 */
 :root {
 	--header-background-high: var(--primary-color-medium);
 	--header-background-low: var(--primary-color-low);
@@ -48,6 +48,12 @@ append_css_patch() {
 :root[data-darkmode="true"] {
 	--header-hover-background: hsla(var(--background-color-high-hsl), .08);
 	--header-active-background: hsla(var(--background-color-high-hsl), .14);
+}
+
+:root[data-accent="blue"] {
+	--primary-color-high: #1976d2;
+	--primary-color-medium: #1564c0;
+	--primary-color-low: #0d46a1;
 }
 
 :root[data-accent="red"] {
@@ -80,6 +86,324 @@ append_css_patch() {
 	--primary-color-low: #965106;
 }
 
+:root[data-accent="slate"] {
+	--primary-color-high: #64748b;
+	--primary-color-medium: #475569;
+	--primary-color-low: #334155;
+}
+
+:root[data-accent="zinc"] {
+	--primary-color-high: #71717a;
+	--primary-color-medium: #52525b;
+	--primary-color-low: #3f3f46;
+}
+
+:root[data-accent="stone"] {
+	--primary-color-high: #78716c;
+	--primary-color-medium: #57534e;
+	--primary-color-low: #44403c;
+}
+
+:root[data-accent="rose"] {
+	--primary-color-high: #fb7185;
+	--primary-color-medium: #e11d48;
+	--primary-color-low: #be123c;
+}
+
+:root[data-accent="pink"] {
+	--primary-color-high: #ec4899;
+	--primary-color-medium: #db2777;
+	--primary-color-low: #be185d;
+}
+
+:root[data-accent="fuchsia"] {
+	--primary-color-high: #d946ef;
+	--primary-color-medium: #c026d3;
+	--primary-color-low: #a21caf;
+}
+
+:root[data-accent="purple"] {
+	--primary-color-high: #a855f7;
+	--primary-color-medium: #9333ea;
+	--primary-color-low: #7e22ce;
+}
+
+:root[data-accent="violet"] {
+	--primary-color-high: #8b5cf6;
+	--primary-color-medium: #7c3aed;
+	--primary-color-low: #6d28d9;
+}
+
+:root[data-accent="indigo"] {
+	--primary-color-high: #6366f1;
+	--primary-color-medium: #4f46e5;
+	--primary-color-low: #4338ca;
+}
+
+:root[data-accent="navy"] {
+	--primary-color-high: #2563eb;
+	--primary-color-medium: #1d4ed8;
+	--primary-color-low: #1e40af;
+}
+
+:root[data-accent="cyan"] {
+	--primary-color-high: #06b6d4;
+	--primary-color-medium: #0891b2;
+	--primary-color-low: #0e7490;
+}
+
+:root[data-accent="teal"] {
+	--primary-color-high: #14b8a6;
+	--primary-color-medium: #0d9488;
+	--primary-color-low: #0f766e;
+}
+
+:root[data-accent="emerald"] {
+	--primary-color-high: #10b981;
+	--primary-color-medium: #059669;
+	--primary-color-low: #047857;
+}
+
+:root[data-accent="mint"] {
+	--primary-color-high: #34d399;
+	--primary-color-medium: #10b981;
+	--primary-color-low: #059669;
+	--on-primary-color: #111827;
+}
+
+:root[data-accent="lime"] {
+	--primary-color-high: #84cc16;
+	--primary-color-medium: #65a30d;
+	--primary-color-low: #4d7c0f;
+	--on-primary-color: #111827;
+}
+
+:root[data-accent="amber"] {
+	--primary-color-high: #f59e0b;
+	--primary-color-medium: #d97706;
+	--primary-color-low: #b45309;
+	--on-primary-color: #111827;
+}
+
+:root[data-accent="coral"] {
+	--primary-color-high: #f97316;
+	--primary-color-medium: #ea580c;
+	--primary-color-low: #c2410c;
+}
+
+:root[data-accent="brown"] {
+	--primary-color-high: #8b5e34;
+	--primary-color-medium: #704923;
+	--primary-color-low: #56361a;
+}
+
+:root[data-accent="white"] {
+	--primary-color-high: #f8fafc;
+	--primary-color-medium: #e2e8f0;
+	--primary-color-low: #cbd5e1;
+	--on-primary-color: #111827;
+}
+
+:root[data-accent="silver"] {
+	--primary-color-high: #cbd5e1;
+	--primary-color-medium: #94a3b8;
+	--primary-color-low: #64748b;
+	--on-primary-color: #111827;
+}
+
+:root[data-accent="gray"] {
+	--primary-color-high: #6b7280;
+	--primary-color-medium: #4b5563;
+	--primary-color-low: #374151;
+}
+
+:root[data-accent="charcoal"] {
+	--primary-color-high: #374151;
+	--primary-color-medium: #1f2937;
+	--primary-color-low: #111827;
+}
+
+:root[data-accent="black"] {
+	--primary-color-high: #18181b;
+	--primary-color-medium: #09090b;
+	--primary-color-low: #000000;
+}
+
+:root[data-accent="cream"] {
+	--primary-color-high: #fff7ed;
+	--primary-color-medium: #ffedd5;
+	--primary-color-low: #fed7aa;
+	--on-primary-color: #111827;
+}
+
+:root[data-accent="sand"] {
+	--primary-color-high: #e7e5e4;
+	--primary-color-medium: #d6d3d1;
+	--primary-color-low: #a8a29e;
+	--on-primary-color: #111827;
+}
+
+:root[data-accent="tan"] {
+	--primary-color-high: #d2b48c;
+	--primary-color-medium: #b88746;
+	--primary-color-low: #8b5e34;
+	--on-primary-color: #111827;
+}
+
+:root[data-accent="gold"] {
+	--primary-color-high: #facc15;
+	--primary-color-medium: #eab308;
+	--primary-color-low: #ca8a04;
+	--on-primary-color: #111827;
+}
+
+:root[data-accent="tangerine"] {
+	--primary-color-high: #fb923c;
+	--primary-color-medium: #f97316;
+	--primary-color-low: #ea580c;
+	--on-primary-color: #111827;
+}
+
+:root[data-accent="scarlet"] {
+	--primary-color-high: #ef4444;
+	--primary-color-medium: #dc2626;
+	--primary-color-low: #b91c1c;
+}
+
+:root[data-accent="crimson"] {
+	--primary-color-high: #dc143c;
+	--primary-color-medium: #b01030;
+	--primary-color-low: #8c1028;
+}
+
+:root[data-accent="maroon"] {
+	--primary-color-high: #7f1d1d;
+	--primary-color-medium: #631717;
+	--primary-color-low: #450a0a;
+}
+
+:root[data-accent="orchid"] {
+	--primary-color-high: #e879f9;
+	--primary-color-medium: #d946ef;
+	--primary-color-low: #c026d3;
+}
+
+:root[data-accent="plum"] {
+	--primary-color-high: #a21caf;
+	--primary-color-medium: #86198f;
+	--primary-color-low: #701a75;
+}
+
+:root[data-accent="mauve"] {
+	--primary-color-high: #c084fc;
+	--primary-color-medium: #a855f7;
+	--primary-color-low: #9333ea;
+}
+
+:root[data-accent="lavender"] {
+	--primary-color-high: #ddd6fe;
+	--primary-color-medium: #c4b5fd;
+	--primary-color-low: #a78bfa;
+	--on-primary-color: #111827;
+}
+
+:root[data-accent="periwinkle"] {
+	--primary-color-high: #818cf8;
+	--primary-color-medium: #6366f1;
+	--primary-color-low: #4f46e5;
+}
+
+:root[data-accent="cobalt"] {
+	--primary-color-high: #3b82f6;
+	--primary-color-medium: #2563eb;
+	--primary-color-low: #1d4ed8;
+}
+
+:root[data-accent="azure"] {
+	--primary-color-high: #0ea5e9;
+	--primary-color-medium: #0284c7;
+	--primary-color-low: #0369a1;
+}
+
+:root[data-accent="ocean"] {
+	--primary-color-high: #0891b2;
+	--primary-color-medium: #0e7490;
+	--primary-color-low: #155e75;
+}
+
+:root[data-accent="petrol"] {
+	--primary-color-high: #0f766e;
+	--primary-color-medium: #115e59;
+	--primary-color-low: #134e4a;
+}
+
+:root[data-accent="forest"] {
+	--primary-color-high: #15803d;
+	--primary-color-medium: #166534;
+	--primary-color-low: #14532d;
+}
+
+:root[data-accent="olive"] {
+	--primary-color-high: #6b8e23;
+	--primary-color-medium: #556b2f;
+	--primary-color-low: #3f4f24;
+}
+
+.luci-color-palette-wrap {
+	max-width: 430px;
+}
+
+.luci-color-palette {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, 30px);
+	gap: 6px;
+	align-items: center;
+}
+
+.luci-color-swatch {
+	position: relative;
+	width: 30px;
+	height: 30px;
+	border: 1px solid var(--border-color-medium);
+	border-radius: 6px;
+	background: linear-gradient(135deg, var(--swatch-high) 0 50%, var(--swatch-medium) 50% 100%);
+	box-shadow: inset 0 0 0 1px hsla(var(--background-color-high-hsl), .22);
+	cursor: pointer;
+}
+
+.luci-color-swatch::after {
+	content: "";
+	position: absolute;
+	left: 10px;
+	top: 6px;
+	width: 7px;
+	height: 13px;
+	border: solid var(--swatch-text);
+	border-width: 0 2px 2px 0;
+	opacity: 0;
+	transform: rotate(45deg);
+}
+
+.luci-color-swatch:hover,
+.luci-color-swatch:focus {
+	border-color: var(--text-color-high);
+}
+
+.luci-color-swatch.selected {
+	outline: 2px solid var(--text-color-highest);
+	outline-offset: 2px;
+	border-color: var(--background-color-high);
+}
+
+.luci-color-swatch.selected::after {
+	opacity: 1;
+}
+
+.luci-color-swatch:disabled {
+	cursor: default;
+	opacity: var(--disabled-opacity);
+}
+
 header {
 	color: var(--header-link-color);
 	background: linear-gradient(var(--header-background-high), var(--header-background-low));
@@ -107,7 +431,7 @@ header .brand {
 .nav .active > a {
 	background-color: var(--header-active-background);
 }
-/* /luci-colorpatch-v2 */
+/* /luci-colorpatch-v4 */
 EOF
 }
 
@@ -136,22 +460,124 @@ patch_luci_config() {
 }
 
 patch_system_js() {
-	grep -q "Interface Color" "$SYSTEM_JS" && return
-
 	tmp="$SYSTEM_JS.tmp.$$"
 	insert_block=$(cat <<'EOF'
-		o = s.taboption('language', form.ListValue, '_accent', _('Interface Color'),
-			_('Changes the LuCI Bootstrap accent color used for navigation, links and buttons.'));
+		const accentPaletteChoices = [
+			{ value: 'blue', label: _('Blue'), high: '#1976d2', medium: '#1564c0', low: '#0d46a1', text: '#ffffff' },
+			{ value: 'sky', label: _('Light Blue'), high: '#23a8e0', medium: '#168ec1', low: '#0f739e', text: '#ffffff' },
+			{ value: 'cyan', label: _('Cyan'), high: '#06b6d4', medium: '#0891b2', low: '#0e7490', text: '#ffffff' },
+			{ value: 'teal', label: _('Teal'), high: '#14b8a6', medium: '#0d9488', low: '#0f766e', text: '#ffffff' },
+			{ value: 'emerald', label: _('Emerald'), high: '#10b981', medium: '#059669', low: '#047857', text: '#ffffff' },
+			{ value: 'green', label: _('Green'), high: '#2f9f5a', medium: '#26884b', low: '#1d6b3a', text: '#ffffff' },
+			{ value: 'mint', label: _('Mint'), high: '#34d399', medium: '#10b981', low: '#059669', text: '#111827' },
+			{ value: 'lime', label: _('Lime'), high: '#84cc16', medium: '#65a30d', low: '#4d7c0f', text: '#111827' },
+			{ value: 'yellow', label: _('Yellow'), high: '#b08a00', medium: '#967500', low: '#7b5f00', text: '#ffffff' },
+			{ value: 'amber', label: _('Amber'), high: '#f59e0b', medium: '#d97706', low: '#b45309', text: '#111827' },
+			{ value: 'orange', label: _('Orange'), high: '#cf7a12', medium: '#b8670b', low: '#965106', text: '#ffffff' },
+			{ value: 'coral', label: _('Coral'), high: '#f97316', medium: '#ea580c', low: '#c2410c', text: '#ffffff' },
+			{ value: 'red', label: _('Red'), high: '#d84b4b', medium: '#c53a3a', low: '#a92a2a', text: '#ffffff' },
+			{ value: 'rose', label: _('Rose'), high: '#fb7185', medium: '#e11d48', low: '#be123c', text: '#ffffff' },
+			{ value: 'pink', label: _('Pink'), high: '#ec4899', medium: '#db2777', low: '#be185d', text: '#ffffff' },
+			{ value: 'fuchsia', label: _('Fuchsia'), high: '#d946ef', medium: '#c026d3', low: '#a21caf', text: '#ffffff' },
+			{ value: 'purple', label: _('Purple'), high: '#a855f7', medium: '#9333ea', low: '#7e22ce', text: '#ffffff' },
+			{ value: 'violet', label: _('Violet'), high: '#8b5cf6', medium: '#7c3aed', low: '#6d28d9', text: '#ffffff' },
+			{ value: 'indigo', label: _('Indigo'), high: '#6366f1', medium: '#4f46e5', low: '#4338ca', text: '#ffffff' },
+			{ value: 'navy', label: _('Navy'), high: '#2563eb', medium: '#1d4ed8', low: '#1e40af', text: '#ffffff' },
+			{ value: 'slate', label: _('Slate'), high: '#64748b', medium: '#475569', low: '#334155', text: '#ffffff' },
+			{ value: 'zinc', label: _('Zinc'), high: '#71717a', medium: '#52525b', low: '#3f3f46', text: '#ffffff' },
+			{ value: 'stone', label: _('Stone'), high: '#78716c', medium: '#57534e', low: '#44403c', text: '#ffffff' },
+			{ value: 'brown', label: _('Brown'), high: '#8b5e34', medium: '#704923', low: '#56361a', text: '#ffffff' },
+			{ value: 'white', label: _('White'), high: '#f8fafc', medium: '#e2e8f0', low: '#cbd5e1', text: '#111827' },
+			{ value: 'silver', label: _('Silver'), high: '#cbd5e1', medium: '#94a3b8', low: '#64748b', text: '#111827' },
+			{ value: 'gray', label: _('Gray'), high: '#6b7280', medium: '#4b5563', low: '#374151', text: '#ffffff' },
+			{ value: 'charcoal', label: _('Charcoal'), high: '#374151', medium: '#1f2937', low: '#111827', text: '#ffffff' },
+			{ value: 'black', label: _('Black'), high: '#18181b', medium: '#09090b', low: '#000000', text: '#ffffff' },
+			{ value: 'cream', label: _('Cream'), high: '#fff7ed', medium: '#ffedd5', low: '#fed7aa', text: '#111827' },
+			{ value: 'sand', label: _('Sand'), high: '#e7e5e4', medium: '#d6d3d1', low: '#a8a29e', text: '#111827' },
+			{ value: 'tan', label: _('Tan'), high: '#d2b48c', medium: '#b88746', low: '#8b5e34', text: '#111827' },
+			{ value: 'gold', label: _('Gold'), high: '#facc15', medium: '#eab308', low: '#ca8a04', text: '#111827' },
+			{ value: 'tangerine', label: _('Tangerine'), high: '#fb923c', medium: '#f97316', low: '#ea580c', text: '#111827' },
+			{ value: 'scarlet', label: _('Scarlet'), high: '#ef4444', medium: '#dc2626', low: '#b91c1c', text: '#ffffff' },
+			{ value: 'crimson', label: _('Crimson'), high: '#dc143c', medium: '#b01030', low: '#8c1028', text: '#ffffff' },
+			{ value: 'maroon', label: _('Maroon'), high: '#7f1d1d', medium: '#631717', low: '#450a0a', text: '#ffffff' },
+			{ value: 'orchid', label: _('Orchid'), high: '#e879f9', medium: '#d946ef', low: '#c026d3', text: '#ffffff' },
+			{ value: 'plum', label: _('Plum'), high: '#a21caf', medium: '#86198f', low: '#701a75', text: '#ffffff' },
+			{ value: 'mauve', label: _('Mauve'), high: '#c084fc', medium: '#a855f7', low: '#9333ea', text: '#ffffff' },
+			{ value: 'lavender', label: _('Lavender'), high: '#ddd6fe', medium: '#c4b5fd', low: '#a78bfa', text: '#111827' },
+			{ value: 'periwinkle', label: _('Periwinkle'), high: '#818cf8', medium: '#6366f1', low: '#4f46e5', text: '#ffffff' },
+			{ value: 'cobalt', label: _('Cobalt'), high: '#3b82f6', medium: '#2563eb', low: '#1d4ed8', text: '#ffffff' },
+			{ value: 'azure', label: _('Azure'), high: '#0ea5e9', medium: '#0284c7', low: '#0369a1', text: '#ffffff' },
+			{ value: 'ocean', label: _('Ocean'), high: '#0891b2', medium: '#0e7490', low: '#155e75', text: '#ffffff' },
+			{ value: 'petrol', label: _('Petrol'), high: '#0f766e', medium: '#115e59', low: '#134e4a', text: '#ffffff' },
+			{ value: 'forest', label: _('Forest'), high: '#15803d', medium: '#166534', low: '#14532d', text: '#ffffff' },
+			{ value: 'olive', label: _('Olive'), high: '#6b8e23', medium: '#556b2f', low: '#3f4f24', text: '#ffffff' }
+		];
+
+		const CBIAccentPalette = form.Value.extend({
+			__name__: 'CBI.AccentPalette',
+
+			renderWidget(section_id, option_index, cfgvalue) {
+				const current = (cfgvalue != null) ? cfgvalue : this.default;
+				const selected = accentPaletteChoices.some((choice) => choice.value == current) ? current : this.default;
+				const disabled = (this.readonly != null) ? this.readonly : this.map.readonly;
+				const input = E('input', {
+					id: this.cbid(section_id),
+					type: 'hidden',
+					value: selected
+				});
+
+				const setValue = (ev, value) => {
+					if (disabled)
+						return;
+
+					input.value = value;
+
+					for (let node of ev.currentTarget.parentNode.querySelectorAll('.luci-color-swatch')) {
+						const active = (node.getAttribute('data-accent-value') == value);
+						node.classList.toggle('selected', active);
+						node.setAttribute('aria-pressed', active ? 'true' : 'false');
+					}
+
+					input.dispatchEvent(new CustomEvent('widget-change', { bubbles: true }));
+				};
+
+				const palette = E('div', {
+					'class': 'luci-color-palette',
+					'role': 'radiogroup'
+				}, accentPaletteChoices.map((choice) => E('button', {
+					'type': 'button',
+					'class': 'luci-color-swatch%s'.format(choice.value == selected ? ' selected' : ''),
+					'title': choice.label,
+					'aria-label': choice.label,
+					'aria-pressed': (choice.value == selected) ? 'true' : 'false',
+					'data-accent-value': choice.value,
+					'style': '--swatch-high:%s;--swatch-medium:%s;--swatch-low:%s;--swatch-text:%s'.format(choice.high, choice.medium, choice.low, choice.text),
+					'disabled': disabled,
+					'click': (ev) => setValue(ev, choice.value)
+				})));
+
+				return E('div', { 'class': 'luci-color-palette-wrap' }, [ input, palette ]);
+			},
+
+			formvalue(section_id) {
+				const node = this.map.findElement('id', this.cbid(section_id));
+				return node ? node.value : null;
+			},
+
+			isValid(section_id) {
+				return true;
+			},
+
+			getValidationError(section_id) {
+				return '';
+			}
+		});
+
+		o = s.taboption('language', CBIAccentPalette, '_accent', _('Interface Color'));
 		o.uciconfig = 'luci';
 		o.ucisection = 'main';
 		o.ucioption = 'accent';
 		o.default = 'blue';
-		o.value('blue', _('Blue'));
-		o.value('sky', _('Light Blue'));
-		o.value('green', _('Green'));
-		o.value('red', _('Red'));
-		o.value('yellow', _('Yellow'));
-		o.value('orange', _('Orange'));
 
 EOF
 )
@@ -159,6 +585,29 @@ EOF
 	awk -v block="$insert_block" '
 		{
 			line = $0
+			if (line ~ /const accentPaletteChoices = \[/) {
+				if (!done) {
+					print block
+					done = 1
+				}
+				skip_mode = "palette"
+				next
+			}
+			if (skip_mode != "") {
+				if (skip_mode == "palette" && line ~ /o\.default = '\''blue'\'';/)
+					skip_mode = ""
+				else if (skip_mode == "list" && line ~ /o\.value\('\''orange'\''/)
+					skip_mode = ""
+				next
+			}
+			if (line ~ /o = s\.taboption\('\''language'\'',[[:space:]]*form\.ListValue,[[:space:]]*'\''_accent'\''/) {
+				if (!done) {
+					print block
+					done = 1
+				}
+				skip_mode = "list"
+				next
+			}
 			if (!done && sub(/o\.value\(uci\.get\('\''luci'\'',[[:space:]]*'\''themes'\'',[[:space:]]*t\),[[:space:]]*t\);/, "&\n" block, line)) {
 				done = 1
 			}
@@ -178,23 +627,67 @@ EOF
 }
 
 patch_header_ut() {
-	grep -q 'data-accent="{{ safeaccent }}"' "$HEADER_UT" && return
+	if ! grep -q 'const safeaccents = {' "$HEADER_UT" || ! grep -q 'olive: true' "$HEADER_UT"; then
+		tmp="$HEADER_UT.tmp.$$"
+		accent_block=$(cat <<'EOF'
+	const accent = uci.get('luci', 'main', 'accent');
+	const safeaccents = {
+		blue: true, sky: true, cyan: true, teal: true,
+		emerald: true, green: true, mint: true, lime: true,
+		yellow: true, amber: true, orange: true, coral: true,
+		red: true, rose: true, pink: true, fuchsia: true,
+		purple: true, violet: true, indigo: true, navy: true,
+		slate: true, zinc: true, stone: true, brown: true,
+		white: true, silver: true, gray: true, charcoal: true,
+		black: true, cream: true, sand: true, tan: true,
+		gold: true, tangerine: true, scarlet: true, crimson: true,
+		maroon: true, orchid: true, plum: true, mauve: true,
+		lavender: true, periwinkle: true, cobalt: true, azure: true,
+		ocean: true, petrol: true, forest: true, olive: true
+	};
+	const safeaccent = safeaccents[accent] ? accent : 'blue';
+EOF
+)
 
-	tmp="$HEADER_UT.tmp.$$"
-	awk '
-		{
-			print
-			if ($0 ~ /const darkpref = / && !done_block) {
-				print "\tconst accent = uci.get('\''luci'\'', '\''main'\'', '\''accent'\'');"
-				print "\tconst safeaccent = ("
-				print "\t\taccent == '\''red'\'' || accent == '\''sky'\'' || accent == '\''green'\'' ||"
-				print "\t\taccent == '\''yellow'\'' || accent == '\''orange'\'' || accent == '\''blue'\''"
-				print "\t) ? accent : '\''blue'\'';"
-				done_block = 1
+		awk -v block="$accent_block" '
+			{
+				if ($0 ~ /const accent = uci\.get\('\''luci'\'',[[:space:]]*'\''main'\'',[[:space:]]*'\''accent'\''\);/) {
+					if (!done_block) {
+						print block
+						done_block = 1
+					}
+					done_block = 1
+					skip = 1
+					next
+				}
+
+				if (skip) {
+					if ($0 ~ /\)[[:space:]]*\?[[:space:]]*accent[[:space:]]*:[[:space:]]*'\''blue'\'';/ || $0 ~ /const safeaccent = safeaccents\[accent\][[:space:]]*\?[[:space:]]*accent[[:space:]]*:[[:space:]]*'\''blue'\'';/)
+						skip = 0
+					next
+				}
+
+				print
+
+				if ($0 ~ /const darkpref = / && !done_block) {
+					print block
+					done_block = 1
+				}
 			}
+			END {
+				if (!done_block)
+					exit 1
+			}
+		' "$HEADER_UT" > "$tmp" || {
+			rm -f "$tmp"
+			echo "Failed to inject accent validation into $HEADER_UT" >&2
+			exit 1
 		}
-	' "$HEADER_UT" > "$tmp"
-	mv "$tmp" "$HEADER_UT"
+
+		mv "$tmp" "$HEADER_UT"
+	fi
+
+	grep -q 'data-accent="{{ safeaccent }}"' "$HEADER_UT" && return
 
 	tmp="$HEADER_UT.tmp.$$"
 	awk '

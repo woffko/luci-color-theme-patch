@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-color-patch
-PKG_VERSION:=1.1.0
+PKG_VERSION:=1.2.0
 PKG_RELEASE:=1
 
 PKG_MAINTAINER:=woffko
@@ -18,7 +18,7 @@ define Package/luci-color-patch
 endef
 
 define Package/luci-color-patch/description
-  Adds a LuCI Bootstrap accent color selector and header color CSS overrides,
+  Adds a LuCI Bootstrap accent color palette and header color CSS overrides,
   with a self-preserved local APK cache for unattended reinstall after
   sysupgrade.
 endef
@@ -48,7 +48,9 @@ define Package/luci-color-patch/postinst
 [ -n "$${IPKG_INSTROOT}" ] && exit 0
 
 [ -x /etc/init.d/luci-color-patch ] && /etc/init.d/luci-color-patch enable >/dev/null 2>&1 || true
-[ -x /usr/libexec/luci-color-patch/reinstall ] && /usr/libexec/luci-color-patch/reinstall --cache-only || true
+if [ "$${LUCI_COLOR_PATCH_SELF_REINSTALL}" != "1" ]; then
+	[ -x /usr/libexec/luci-color-patch/reinstall ] && /usr/libexec/luci-color-patch/reinstall --refresh-cache || true
+fi
 [ -x /usr/libexec/luci-color-patch/apply ] && NO_BACKUP=1 RESTART_SERVICES=1 /usr/libexec/luci-color-patch/apply || true
 
 exit 0

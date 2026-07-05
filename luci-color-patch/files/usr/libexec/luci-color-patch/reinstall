@@ -13,6 +13,10 @@ log() {
 cache_apk() {
 	mkdir -p "$CACHE_DIR" || return 1
 
+	if [ "${1:-}" != "force" ] && [ -f "$CACHE_APK" ]; then
+		return 0
+	fi
+
 	if [ -f "$EMBEDDED_APK" ]; then
 		cp -fp "$EMBEDDED_APK" "$CACHE_APK" || return 1
 	fi
@@ -38,7 +42,7 @@ reinstall_pkg() {
 		return 1
 	}
 
-	apk add --allow-untrusted --force-overwrite "$CACHE_APK"
+	LUCI_COLOR_PATCH_SELF_REINSTALL=1 apk add --allow-untrusted --force-overwrite "$CACHE_APK"
 }
 
 apply_patch() {
@@ -49,6 +53,10 @@ apply_patch() {
 case "${1:-}" in
 	--cache-only)
 		cache_apk || log "unable to cache APK"
+		exit 0
+		;;
+	--refresh-cache)
+		cache_apk force || log "unable to refresh APK cache"
 		exit 0
 		;;
 	--apply-only)

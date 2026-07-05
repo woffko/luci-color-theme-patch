@@ -3,24 +3,41 @@
 OpenWrt feed package for the local LuCI Bootstrap accent color patch.
 
 The package installs an idempotent runtime patcher, a `uci-defaults` hook, an
-init script and a preserved local APK cache. A manually installed package can
-therefore re-install itself after sysupgrade and still show up as installed in
-the OpenWrt 25.x `apk` database.
+init script and a preserved local APK cache. It replaces the LuCI Bootstrap
+accent dropdown with a compact color palette while keeping the same
+`luci.main.accent` UCI option. A manually installed package can therefore
+re-install itself after sysupgrade and still show up as installed in the
+OpenWrt 25.x `apk` database.
 
 The repository also carries a build-time helper that patches LuCI feed sources
 before image generation, which makes the generated sysupgrade image contain the
 patched LuCI files immediately.
+
+## Accent Values
+
+The UCI setting remains `luci.main.accent`, so existing configs keep working.
+Legacy values are still accepted:
+
+```text
+blue sky green red yellow orange
+```
+
+The palette currently exposes 48 values:
+
+```text
+blue sky cyan teal emerald green mint lime yellow amber orange coral red rose pink fuchsia purple violet indigo navy slate zinc stone brown white silver gray charcoal black cream sand tan gold tangerine scarlet crimson maroon orchid plum mauve lavender periwinkle cobalt azure ocean petrol forest olive
+```
 
 ## Runtime APK Install
 
 Install an unsigned local build with:
 
 ```sh
-apk add --allow-untrusted ./luci-color-patch-1.1.0-r1.apk
+apk add --allow-untrusted ./luci-color-patch-1.2.0-r1.apk
 ```
 
-The package post-install script enables `/etc/init.d/luci-color-patch`, copies
-the embedded self-reinstall APK to
+The package post-install script enables `/etc/init.d/luci-color-patch`, refreshes
+the embedded self-reinstall APK cache at
 `/etc/luci-color-patch/luci-color-patch.apk` and applies the LuCI patch.
 
 Check the install state with:
