@@ -33,14 +33,15 @@ blue sky cyan teal emerald green mint lime yellow amber orange coral red rose pi
 Install an unsigned local build with:
 
 ```sh
-apk add --allow-untrusted ./luci-color-patch-1.2.1-r1.apk
+apk add --allow-untrusted ./luci-color-patch-1.2.2-r1.apk
 ```
 
 The package post-install script enables `/etc/init.d/luci-color-patch`, refreshes
 the embedded self-reinstall APK cache at
 `/etc/luci-color-patch/luci-color-patch.apk` and applies the LuCI patch.
-Version `1.2.1-r1` also repairs a broken LuCI `system.js` left by applying the
-palette patch over an already-minified file.
+Version `1.2.2-r1` also repairs a broken LuCI `system.js` left by applying the
+palette patch over an already-minified file, and improves dark-theme contrast
+for colored headers, links and active tabs.
 
 Check the install state with:
 
