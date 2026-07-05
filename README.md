@@ -91,7 +91,7 @@ allows overwriting the package's own restored files.
 For GitHub-backed builds:
 
 ```sh
-src-git lucicolor https://github.com/woffko/luci-color-theme-patch.git
+src-git -b main lucicolor https://github.com/woffko/luci-color-theme-patch.git
 ```
 
 For local development:
