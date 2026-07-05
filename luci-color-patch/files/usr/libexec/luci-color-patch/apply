@@ -583,34 +583,125 @@ EOF
 )
 
 	awk -v block="$insert_block" '
-		{
-			line = $0
-			if (line ~ /const accentPaletteChoices = \[/) {
-				if (!done) {
-					print block
-					done = 1
-				}
-				skip_mode = "palette"
-				next
-			}
-			if (skip_mode != "") {
-				if (skip_mode == "palette" && line ~ /o\.default = '\''blue'\'';/)
-					skip_mode = ""
-				else if (skip_mode == "list" && line ~ /o\.value\('\''orange'\''/)
-					skip_mode = ""
-				next
-			}
-			if (line ~ /o = s\.taboption\('\''language'\'',[[:space:]]*form\.ListValue,[[:space:]]*'\''_accent'\''/) {
-				if (!done) {
-					print block
-					done = 1
-				}
-				skip_mode = "list"
-				next
-			}
-			if (!done && sub(/o\.value\(uci\.get\('\''luci'\'',[[:space:]]*'\''themes'\'',[[:space:]]*t\),[[:space:]]*t\);/, "&\n" block, line)) {
+		function print_block_once() {
+			if (!done) {
+				print block
 				done = 1
 			}
+		}
+		function strip_palette_tail(s) {
+			if (match(s, /o[[:space:]]*\.[[:space:]]*default[[:space:]]*=[[:space:]]*'\''blue'\''[[:space:]]*;/)) {
+				s = substr(s, RSTART + RLENGTH)
+				skip_mode = ""
+				return s
+			}
+
+			return ""
+		}
+		function strip_list_tail(s) {
+			if (match(s, /o[[:space:]]*\.[[:space:]]*value[[:space:]]*\([[:space:]]*'\''orange'\''[^;]*;/)) {
+				s = substr(s, RSTART + RLENGTH)
+				skip_mode = ""
+				return s
+			}
+
+			return ""
+		}
+		function repair_broken_ntp_prefix(s) {
+			if (seen_ntp_enabled || repaired_ntp || s !~ /^[[:space:]]*if[[:space:]]*\(!ntpd_enabled\)/)
+				return
+
+			print "\t\t\to = s.taboption('\''language'\'', form.Flag, '\''_tablefilters'\'', _('\''Table Filters'\''));"
+			print "\t\t\to.default = o.disabled;"
+			print "\t\t\to.uciconfig = '\''luci'\'';"
+			print "\t\t\to.ucisection = '\''main'\'';"
+			print "\t\t\to.ucioption = '\''tablefilters'\'';"
+			print ""
+			print "\t\t\t/*"
+			print "\t\t\t * NTP"
+			print "\t\t\t */"
+			print ""
+			print "\t\t\tif (L.hasSystemFeature('\''sysntpd'\'')) {"
+			print "\t\t\t\tvar default_servers = ["
+			print "\t\t\t\t\t'\''0.openwrt.pool.ntp.org'\'', '\''1.openwrt.pool.ntp.org'\'',"
+			print "\t\t\t\t\t'\''2.openwrt.pool.ntp.org'\'', '\''3.openwrt.pool.ntp.org'\''"
+			print "\t\t\t\t];"
+			print ""
+			print "\t\t\t\to = s.taboption('\''timesync'\'', form.Flag, '\''enabled'\'', _('\''Enable NTP client'\''));"
+			print "\t\t\t\to.rmempty = false;"
+			print "\t\t\t\to.ucisection = '\''ntp'\'';"
+			print "\t\t\t\to.default = o.disabled;"
+			print "\t\t\t\to.write = function(section_id, value) {"
+			print "\t\t\t\t\tntpd_enabled = +value;"
+			print ""
+			print "\t\t\t\t\tif (ntpd_enabled && !uci.get('\''system'\'', '\''ntp'\'')) {"
+			print "\t\t\t\t\t\tuci.add('\''system'\'', '\''timeserver'\'', '\''ntp'\'');"
+			print "\t\t\t\t\t\tuci.set('\''system'\'', '\''ntp'\'', '\''server'\'', default_servers);"
+			print "\t\t\t\t\t}"
+
+			repaired_ntp = 1
+			seen_ntp_enabled = 1
+		}
+		{
+			line = $0
+
+			while (1) {
+				if (skip_mode == "palette") {
+					line = strip_palette_tail(line)
+					if (skip_mode != "")
+						next
+					if (line == "")
+						next
+					continue
+				}
+
+				if (skip_mode == "list") {
+					line = strip_list_tail(line)
+					if (skip_mode != "")
+						next
+					if (line == "")
+						next
+					continue
+				}
+
+				if (line ~ /const[[:space:]]+accentPaletteChoices[[:space:]]*=[[:space:]]*\[/) {
+					print_block_once()
+					skip_mode = "palette"
+					line = strip_palette_tail(line)
+					if (skip_mode != "")
+						next
+					if (line == "")
+						next
+					continue
+				}
+
+				if (!done && match(line, /o[[:space:]]*\.[[:space:]]*value[[:space:]]*\([[:space:]]*uci[[:space:]]*\.[[:space:]]*get[[:space:]]*\([[:space:]]*'\''luci'\''[[:space:]]*,[[:space:]]*'\''themes'\''[[:space:]]*,[[:space:]]*t[[:space:]]*\)[[:space:]]*,[[:space:]]*t[[:space:]]*\)[[:space:]]*;/)) {
+					print substr(line, 1, RSTART + RLENGTH - 1)
+					print_block_once()
+					line = substr(line, RSTART + RLENGTH)
+					if (line == "")
+						next
+					continue
+				}
+
+				if (line ~ /o[[:space:]]*=[[:space:]]*s[[:space:]]*\.[[:space:]]*taboption[[:space:]]*\([[:space:]]*'\''language'\''[[:space:]]*,[[:space:]]*form[[:space:]]*\.[[:space:]]*ListValue[[:space:]]*,[[:space:]]*'\''_accent'\''/) {
+					print_block_once()
+					skip_mode = "list"
+					line = strip_list_tail(line)
+					if (skip_mode != "")
+						next
+					if (line == "")
+						next
+					continue
+				}
+
+				break
+			}
+
+			if (line ~ /s[[:space:]]*\.[[:space:]]*taboption[[:space:]]*\([[:space:]]*'\''timesync'\''[[:space:]]*,[[:space:]]*form[[:space:]]*\.[[:space:]]*Flag[[:space:]]*,[[:space:]]*'\''enabled'\''/)
+				seen_ntp_enabled = 1
+
+			repair_broken_ntp_prefix(line)
 			print line
 		}
 		END {
