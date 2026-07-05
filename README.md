@@ -66,9 +66,6 @@ apk add --allow-untrusted --force-overwrite --force-reinstall \
 The package post-install script enables `/etc/init.d/luci-color-patch`, refreshes
 the embedded self-reinstall APK cache at
 `/etc/luci-color-patch/luci-color-patch.apk` and applies the LuCI patch.
-Version `1.2.2-r2` also repairs a broken LuCI `system.js` left by applying the
-palette patch over an already-minified file, and improves dark-theme contrast
-for colored headers, links and active tabs.
 
 Check the install state with:
 
