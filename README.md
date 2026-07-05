@@ -63,9 +63,6 @@ apk add --allow-untrusted --force-overwrite --force-reinstall \
 ```
 
 The package post-install script applies the LuCI patch and restarts `uhttpd`.
-Version `1.2.2-r2` also repairs a broken LuCI `system.js` left by applying the
-palette patch over an already-minified file, and improves dark-theme contrast
-for colored headers, links and active tabs.
 
 Check the install state with:
 
