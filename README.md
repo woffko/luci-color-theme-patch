@@ -1,7 +1,7 @@
-# luci-color-patch selfrestore
+# luci-color-patch plain
 
 OpenWrt feed package for the local LuCI Bootstrap accent color patch.
-This branch builds the **selfrestore** variant.
+This branch builds the **plain** variant.
 
 ## Variants
 
@@ -13,12 +13,11 @@ setting. Install only one variant at a time.
 | `selfrestore` | `main` | `luci-color-patch-selfrestore-1.2.2-r1-openwrt-25.12-noarch.apk` | Preserves a cached APK and reinstalls itself on first boot after sysupgrade. |
 | `plain` | `no-sysupgrade-restore` | `luci-color-patch-plain-1.2.2-r1-openwrt-25.12-noarch.apk` | Does not preserve or reinstall itself; reinstall manually or include it in the image. |
 
-The package installs an idempotent runtime patcher, a `uci-defaults` hook, an
-init script and a preserved local APK cache. It replaces the LuCI Bootstrap
-accent dropdown with a compact color palette while keeping the same
-`luci.main.accent` UCI option. A manually installed package can therefore
-re-install itself after sysupgrade and still show up as installed in the
-OpenWrt 25.x `apk` database.
+The package installs an idempotent runtime patcher and a `uci-defaults` hook,
+but no sysupgrade restore hooks. It replaces the LuCI Bootstrap accent dropdown
+with a compact color palette while keeping the same `luci.main.accent` UCI
+option. After sysupgrade, reinstall this package manually or include it in the
+new image.
 
 The repository also carries a build-time helper that patches LuCI feed sources
 before image generation, which makes the generated sysupgrade image contain the
@@ -53,12 +52,10 @@ Install an unsigned local build with:
 
 ```sh
 apk add --allow-untrusted --force-overwrite --force-reinstall \
-  ./luci-color-patch-selfrestore-1.2.2-r1-openwrt-25.12-noarch.apk
+  ./luci-color-patch-plain-1.2.2-r1-openwrt-25.12-noarch.apk
 ```
 
-The package post-install script enables `/etc/init.d/luci-color-patch`, refreshes
-the embedded self-reinstall APK cache at
-`/etc/luci-color-patch/luci-color-patch.apk` and applies the LuCI patch.
+The package post-install script applies the LuCI patch and restarts `uhttpd`.
 Version `1.2.2-r1` also repairs a broken LuCI `system.js` left by applying the
 palette patch over an already-minified file, and improves dark-theme contrast
 for colored headers, links and active tabs.
@@ -67,31 +64,18 @@ Check the install state with:
 
 ```sh
 apk info -e luci-color-patch
-test -f /etc/luci-color-patch/luci-color-patch.apk && echo cache-ok
 ```
 
-After sysupgrade, `/lib/upgrade/keep.d/luci-color-patch` preserves the cached
-APK and the small restore scripts. On the first boot, the init script runs:
-
-```sh
-/usr/libexec/luci-color-patch/reinstall
-```
-
-If the package is missing from the new `apk` database, the restore script uses:
-
-```sh
-apk add --allow-untrusted --force-overwrite /etc/luci-color-patch/luci-color-patch.apk
-```
-
-This intentionally bypasses package signing for the preserved local APK and
-allows overwriting the package's own restored files.
+This variant intentionally does not install `/etc/init.d/luci-color-patch`,
+`/lib/upgrade/keep.d/luci-color-patch` or a cached APK under
+`/etc/luci-color-patch`.
 
 ## OpenWrt Feed
 
 For GitHub-backed builds:
 
 ```sh
-src-git lucicolor https://github.com/woffko/luci-color-theme-patch.git
+src-git -b no-sysupgrade-restore lucicolor https://github.com/woffko/luci-color-theme-patch.git
 ```
 
 For local development:

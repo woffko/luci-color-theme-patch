@@ -1,9 +1,6 @@
 #!/bin/sh
 
-if [ -x /usr/libexec/luci-color-patch/reinstall ]; then
-	/usr/libexec/luci-color-patch/reinstall --cache-only || true
-	NO_BACKUP=1 RESTART_SERVICES=0 /usr/libexec/luci-color-patch/reinstall --apply-only || true
-elif [ -x /usr/libexec/luci-color-patch/apply ]; then
+if [ -x /usr/libexec/luci-color-patch/apply ]; then
 	NO_BACKUP=1 RESTART_SERVICES=0 /usr/libexec/luci-color-patch/apply || true
 fi
 
