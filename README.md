@@ -3,6 +3,10 @@
 OpenWrt feed package for the local LuCI Bootstrap accent color patch.
 This branch builds the **plain** variant.
 
+The package is intended for setups with many OpenWrt installations: assign a
+different LuCI accent color to each router to make browser tabs and admin
+sessions easier to tell apart.
+
 ![LuCI color palette](docs/luci-color-patch-palette.png)
 
 ## Variants
