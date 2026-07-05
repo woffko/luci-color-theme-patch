@@ -1,0 +1,15 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=01
+
+boot() {
+	[ -x /usr/libexec/luci-color-patch/reinstall ] || return 0
+	NO_BACKUP=1 RESTART_SERVICES=0 /usr/libexec/luci-color-patch/reinstall >/tmp/luci-color-patch.log 2>&1 || true
+}
+
+start() {
+	[ -x /usr/libexec/luci-color-patch/reinstall ] || return 0
+	/usr/libexec/luci-color-patch/reinstall --cache-only || true
+	NO_BACKUP=1 RESTART_SERVICES=1 /usr/libexec/luci-color-patch/reinstall --apply-only || true
+}
