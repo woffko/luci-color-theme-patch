@@ -76,6 +76,15 @@ This variant intentionally does not install `/etc/init.d/luci-color-patch`,
 `/lib/upgrade/keep.d/luci-color-patch` or a cached APK under
 `/etc/luci-color-patch`.
 
+## Attended Sysupgrade
+
+This package is not part of the official OpenWrt package repositories and is
+unlikely to be accepted upstream in this form. When using LuCI Attended
+Sysupgrade, deselect or disable `luci-color-patch` in the requested package
+list before starting the upgrade. The plain variant does not reinstall itself
+after sysupgrade; reinstall it manually afterwards or include this feed in your
+own image build.
+
 ## OpenWrt Feed
 
 For GitHub-backed builds:
