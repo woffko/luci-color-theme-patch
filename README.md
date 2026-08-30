@@ -35,6 +35,8 @@ runtime patch is reapplied to a minified `system.js`. It also repairs files
 damaged by the previous repeated-application path before installing the accent
 palette again. A JavaScript version sentinel survives LuCI minification, so a
 validated current patch is left untouched instead of being rewritten.
+The selfrestore package embeds a non-recursive r5 seed APK, avoiding the nested
+APK growth of the earlier release builds.
 
 ## Supported Platforms
 
