@@ -33,7 +33,8 @@ patched LuCI files immediately.
 Release `1.2.2-r5` preserves the original LuCI theme-list statement when the
 runtime patch is reapplied to a minified `system.js`. It also repairs files
 damaged by the previous repeated-application path before installing the accent
-palette again.
+palette again. A JavaScript version sentinel survives LuCI minification, so a
+validated current patch is left untouched instead of being rewritten.
 
 ## Supported Platforms
 

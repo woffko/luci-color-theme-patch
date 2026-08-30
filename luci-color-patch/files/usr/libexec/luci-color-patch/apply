@@ -9,6 +9,7 @@ HEADER_UT="${HEADER_UT:-$ROOT/usr/share/ucode/luci/template/themes/bootstrap/hea
 CASCADE_CSS="${CASCADE_CSS:-$ROOT/www/luci-static/bootstrap/cascade.css}"
 
 STAMP="luci-colorpatch-v7"
+SYSTEM_STAMP="luci-colorpatch-system-v8"
 TS="$(date +%Y%m%d-%H%M%S 2>/dev/null || echo now)"
 BACKUP_DIR="${BACKUP_DIR:-$ROOT/etc/luci-color-patch/backups/$TS}"
 NO_BACKUP="${NO_BACKUP:-0}"
@@ -851,9 +852,25 @@ patch_luci_config() {
 	mv "$tmp" "$LUCI_CFG"
 }
 
+system_js_has_theme_selector() {
+	grep -qE "o[[:space:]]*\.[[:space:]]*value[[:space:]]*\([[:space:]]*uci[[:space:]]*\.[[:space:]]*get[[:space:]]*\([[:space:]]*'luci'[[:space:]]*,[[:space:]]*'themes'[[:space:]]*,[[:space:]]*t[[:space:]]*\)[[:space:]]*,[[:space:]]*t[[:space:]]*\)[[:space:]]*;" "$1"
+}
+
+system_js_is_current() {
+	grep -q "$SYSTEM_STAMP" "$SYSTEM_JS" &&
+		system_js_has_theme_selector "$SYSTEM_JS" &&
+		grep -qE 'const[[:space:]]+accentPaletteChoices[[:space:]]*=' "$SYSTEM_JS"
+}
+
 patch_system_js() {
+	if system_js_is_current; then
+		return 0
+	fi
+
 	tmp="$SYSTEM_JS.tmp.$$"
 	insert_block=$(cat <<'EOF'
+		/* luci-colorpatch-system-v8 */
+		const luciColorPatchSystemMarker = 'luci-colorpatch-system-v8';
 		const accentPaletteChoices = [
 			{ value: 'blue', label: _('Blue'), high: '#1976d2', medium: '#1564c0', low: '#0d46a1', text: '#ffffff' },
 			{ value: 'sky', label: _('Light Blue'), high: '#23a8e0', medium: '#168ec1', low: '#0f739e', text: '#ffffff' },
@@ -1043,6 +1060,10 @@ EOF
 		}
 		{
 			line = $0
+			gsub(/\/\*[[:space:]]*luci-colorpatch-system-v[0-9]+[[:space:]]*\*\//, "", line)
+			gsub(/const[[:space:]]+luciColorPatchSystemMarker[[:space:]]*=[^;]*;/, "", line)
+			if (line == "")
+				next
 
 			while (1) {
 				if (skip_mode == "palette") {
@@ -1125,9 +1146,9 @@ EOF
 		exit 1
 	}
 
-	if ! grep -qE "o[[:space:]]*\.[[:space:]]*value[[:space:]]*\([[:space:]]*uci[[:space:]]*\.[[:space:]]*get[[:space:]]*\([[:space:]]*'luci'[[:space:]]*,[[:space:]]*'themes'[[:space:]]*,[[:space:]]*t[[:space:]]*\)[[:space:]]*,[[:space:]]*t[[:space:]]*\)[[:space:]]*;" "$tmp"; then
+	if ! system_js_has_theme_selector "$tmp" || ! grep -q "$SYSTEM_STAMP" "$tmp"; then
 		rm -f "$tmp"
-		echo "Failed to preserve the LuCI theme selector in $SYSTEM_JS" >&2
+		echo "Failed to validate the LuCI system patch in $SYSTEM_JS" >&2
 		exit 1
 	fi
 
