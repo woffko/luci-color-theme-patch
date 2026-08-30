@@ -99,9 +99,9 @@ done
 selfrestore_root="$tmp_dir/selfrestore"
 prepare_root "$selfrestore_root"
 cp "$FIXTURES/system-stale-marker-minified.js" "$selfrestore_root/www/luci-static/resources/view/system/system.js"
-cp "$REPO_DIR/luci-color-patch/files/usr/libexec/luci-color-patch/reinstall" "$selfrestore_root/usr/share/luci-color-patch/r6/reinstall"
-cp "$REPO_DIR/luci-color-patch/files/etc/init.d/luci-color-patch" "$selfrestore_root/usr/share/luci-color-patch/r6/init"
-cp "$REPO_DIR/luci-color-patch/files/lib/upgrade/keep.d/luci-color-patch" "$selfrestore_root/usr/share/luci-color-patch/r6/keep"
+cp "$FIXTURES/selfrestore-reinstall" "$selfrestore_root/usr/share/luci-color-patch/r6/reinstall"
+cp "$FIXTURES/selfrestore-init" "$selfrestore_root/usr/share/luci-color-patch/r6/init"
+cp "$FIXTURES/selfrestore-keep-r6" "$selfrestore_root/usr/share/luci-color-patch/r6/keep"
 printf '%s\n' r6-seed > "$selfrestore_root/usr/share/luci-color-patch/r6/seed.apk"
 
 ROOT="$selfrestore_root" NO_BACKUP=1 RESTART_SERVICES=0 "$BOOTSTRAP"

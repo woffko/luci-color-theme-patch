@@ -1,0 +1,5 @@
+/etc/luci-color-patch/luci-color-patch.apk
+/etc/init.d/luci-color-patch
+/etc/rc.d/S99luci-color-patch
+/lib/upgrade/keep.d/luci-color-patch
+/usr/libexec/luci-color-patch/reinstall
