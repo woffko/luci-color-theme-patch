@@ -856,10 +856,44 @@ system_js_has_theme_selector() {
 	grep -qE "o[[:space:]]*\.[[:space:]]*value[[:space:]]*\([[:space:]]*uci[[:space:]]*\.[[:space:]]*get[[:space:]]*\([[:space:]]*'luci'[[:space:]]*,[[:space:]]*'themes'[[:space:]]*,[[:space:]]*t[[:space:]]*\)[[:space:]]*,[[:space:]]*t[[:space:]]*\)[[:space:]]*;" "$1"
 }
 
+system_js_has_single_ordered_marker() {
+	awk '
+		{
+			line = $0
+			while ((pos = index(line, "const luciColorPatchSystemMarker")) != 0) {
+				marker_count++
+				if (marker_count == 1) {
+					marker_line = NR
+					marker_pos = length($0) - length(line) + pos
+				}
+				line = substr(line, pos + 1)
+			}
+
+			line = $0
+			while ((pos = index(line, "const accentPaletteChoices")) != 0) {
+				palette_count++
+				if (palette_count == 1) {
+					palette_line = NR
+					palette_pos = length($0) - length(line) + pos
+				}
+				line = substr(line, pos + 1)
+			}
+		}
+		END {
+			if (marker_count != 1 || palette_count != 1)
+				exit 1
+			if (marker_line > palette_line)
+				exit 1
+			if (marker_line == palette_line && marker_pos >= palette_pos)
+				exit 1
+		}
+	' "$1"
+}
+
 system_js_is_current() {
 	grep -q "$SYSTEM_STAMP" "$SYSTEM_JS" &&
 		system_js_has_theme_selector "$SYSTEM_JS" &&
-		grep -qE 'const[[:space:]]+accentPaletteChoices[[:space:]]*=' "$SYSTEM_JS"
+		system_js_has_single_ordered_marker "$SYSTEM_JS"
 }
 
 patch_system_js() {
@@ -1060,12 +1094,13 @@ EOF
 		}
 		{
 			line = $0
-			gsub(/\/\*[[:space:]]*luci-colorpatch-system-v[0-9]+[[:space:]]*\*\//, "", line)
-			gsub(/const[[:space:]]+luciColorPatchSystemMarker[[:space:]]*=[^;]*;/, "", line)
-			if (line == "")
-				next
 
 			while (1) {
+				gsub(/\/\*[[:space:]]*luci-colorpatch-system-v[0-9]+[[:space:]]*\*\//, "", line)
+				gsub(/const[[:space:]]+luciColorPatchSystemMarker[[:space:]]*=[^;]*;/, "", line)
+				if (line ~ /^[[:space:]]*$/)
+					next
+
 				if (skip_mode == "palette") {
 					line = strip_palette_tail(line)
 					if (skip_mode != "")
@@ -1146,7 +1181,9 @@ EOF
 		exit 1
 	}
 
-	if ! system_js_has_theme_selector "$tmp" || ! grep -q "$SYSTEM_STAMP" "$tmp"; then
+	if ! system_js_has_theme_selector "$tmp" ||
+		! grep -q "$SYSTEM_STAMP" "$tmp" ||
+		! system_js_has_single_ordered_marker "$tmp"; then
 		rm -f "$tmp"
 		echo "Failed to validate the LuCI system patch in $SYSTEM_JS" >&2
 		exit 1
