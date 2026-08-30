@@ -1,0 +1,9 @@
+#!/bin/sh
+
+root="${ROOT:-/}"
+root="${root%/}"
+bootstrap="$root/usr/libexec/luci-color-patch/bootstrap-r6"
+
+[ -x "$bootstrap" ] || exit 1
+
+NO_BACKUP=1 RESTART_SERVICES=0 ROOT="${root:-/}" "$bootstrap"

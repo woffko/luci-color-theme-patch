@@ -6,10 +6,17 @@ SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 REPO_DIR="$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)"
 APPLY="$REPO_DIR/luci-color-patch/files/usr/libexec/luci-color-patch/apply"
 BOOTSTRAP="$REPO_DIR/luci-color-patch/files/usr/libexec/luci-color-patch/bootstrap-r6"
+HOOK="$REPO_DIR/luci-color-patch/files/etc/uci-defaults/00-luci-color-patch-r7"
 FIXTURES="$SCRIPT_DIR/fixtures"
 
 command -v node >/dev/null 2>&1 || {
 	echo "node is required for JavaScript syntax checks" >&2
+	exit 1
+}
+
+first_hook="$(printf '%s\n' 70-rootpt-resize 80-rootfs-resize 99-luci-color-patch 00-luci-color-patch-r7 | sort | head -n 1)"
+[ "$first_hook" = 00-luci-color-patch-r7 ] || {
+	echo "r7 migration hook does not run before resize and legacy hooks" >&2
 	exit 1
 }
 
@@ -78,7 +85,7 @@ if node --check "$plain_root/www/luci-static/resources/view/system/system.js" >/
 	echo "legacy-corrupted plain fixture unexpectedly passed syntax validation" >&2
 	exit 1
 fi
-ROOT="$plain_root" NO_BACKUP=1 RESTART_SERVICES=0 "$BOOTSTRAP"
+ROOT="$plain_root" "$HOOK"
 assert_current_apply_and_system "$plain_root"
 
 for legacy_path in \
@@ -104,7 +111,7 @@ cp "$FIXTURES/selfrestore-init" "$selfrestore_root/usr/share/luci-color-patch/r6
 cp "$FIXTURES/selfrestore-keep-r6" "$selfrestore_root/usr/share/luci-color-patch/r6/keep"
 printf '%s\n' r6-seed > "$selfrestore_root/usr/share/luci-color-patch/r6/seed.apk"
 
-ROOT="$selfrestore_root" NO_BACKUP=1 RESTART_SERVICES=0 "$BOOTSTRAP"
+ROOT="$selfrestore_root" "$HOOK"
 assert_current_apply_and_system "$selfrestore_root"
 cmp "$selfrestore_root/usr/share/luci-color-patch/r6/reinstall" "$selfrestore_root/usr/libexec/luci-color-patch/reinstall"
 cmp "$selfrestore_root/usr/share/luci-color-patch/r6/init" "$selfrestore_root/etc/init.d/luci-color-patch"
