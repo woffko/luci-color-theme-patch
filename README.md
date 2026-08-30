@@ -16,8 +16,8 @@ setting. Install only one variant at a time.
 
 | Variant | Branch | Release asset | Sysupgrade behavior |
 | --- | --- | --- | --- |
-| `selfrestore` | `main` | `luci-color-patch-selfrestore-1.2.2-r6-openwrt-25.12-noarch.apk` | Preserves a cached APK and reinstalls itself on first boot after sysupgrade. |
-| `plain` | `no-sysupgrade-restore` | `luci-color-patch-plain-1.2.2-r6-openwrt-25.12-noarch.apk` | Does not preserve or reinstall itself; reinstall manually or include it in the image. |
+| `selfrestore` | `main` | `luci-color-patch-selfrestore-1.2.2-r7-openwrt-25.12-noarch.apk` | Preserves a cached APK and reinstalls itself on first boot after sysupgrade. |
+| `plain` | `no-sysupgrade-restore` | `luci-color-patch-plain-1.2.2-r7-openwrt-25.12-noarch.apk` | Does not preserve or reinstall itself; reinstall manually or include it in the image. |
 
 The package installs an idempotent runtime patcher, a `uci-defaults` hook, an
 init script and a preserved local APK cache. It replaces the LuCI Bootstrap
@@ -31,13 +31,14 @@ before image generation, which makes the generated sysupgrade image contain the
 patched LuCI files immediately.
 
 Release `1.2.2-r5` made the JavaScript patch idempotent and repairable. Release
-`1.2.2-r6` adds a versioned first-boot bootstrap for sysupgrade migrations. It
-runs after legacy hooks, restores the current patcher from a path that old keep
+`1.2.2-r7` adds a versioned first-boot bootstrap for sysupgrade migrations. Its
+`00-*` hook runs before x86 root-partition resize scripts can reboot and before
+legacy `99-*` hooks. It restores the current patcher from a path that old keep
 lists cannot overwrite, repairs LuCI, and removes stale selfrestore files when
 the image contains the plain variant. The selfrestore keep list no longer
 preserves mutable patch or `uci-defaults` files.
 
-The selfrestore package embeds a non-recursive r6 seed APK, avoiding the nested
+The selfrestore package embeds a non-recursive r7 seed APK, avoiding the nested
 APK growth of the earlier release builds.
 
 ## Supported Platforms
@@ -70,7 +71,7 @@ Install an unsigned local build with:
 
 ```sh
 apk add --allow-untrusted --force-overwrite --force-reinstall \
-  ./luci-color-patch-selfrestore-1.2.2-r6-openwrt-25.12-noarch.apk
+  ./luci-color-patch-selfrestore-1.2.2-r7-openwrt-25.12-noarch.apk
 ```
 
 The package post-install script enables `/etc/init.d/luci-color-patch`, refreshes

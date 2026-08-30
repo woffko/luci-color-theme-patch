@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-color-patch
 PKG_VERSION:=1.2.2
-PKG_RELEASE:=6
+PKG_RELEASE:=7
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
@@ -36,7 +36,7 @@ define Package/luci-color-patch/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/etc/init.d/luci-color-patch $(1)/etc/init.d/luci-color-patch
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(INSTALL_BIN) ./files/etc/uci-defaults/zz-luci-color-patch-r6 $(1)/etc/uci-defaults/zz-luci-color-patch-r6
+	$(INSTALL_BIN) ./files/etc/uci-defaults/00-luci-color-patch-r7 $(1)/etc/uci-defaults/00-luci-color-patch-r7
 	$(INSTALL_DIR) $(1)/lib/upgrade/keep.d
 	$(INSTALL_DATA) ./files/lib/upgrade/keep.d/luci-color-patch $(1)/lib/upgrade/keep.d/luci-color-patch
 	$(INSTALL_DIR) $(1)/usr/share/luci-color-patch/r6
