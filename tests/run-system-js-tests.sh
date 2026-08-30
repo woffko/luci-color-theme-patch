@@ -22,6 +22,7 @@ trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
 
 cp "$FIXTURES/system-unpatched-minified.js" "$tmp_dir/unpatched.js"
 cp "$FIXTURES/system-broken-minified.js" "$tmp_dir/broken.js"
+cp "$FIXTURES/system-stale-marker-minified.js" "$tmp_dir/stale-marker.js"
 
 if node --check "$tmp_dir/broken.js" >/dev/null 2>&1; then
 	echo "broken fixture unexpectedly passed the syntax check" >&2
@@ -50,6 +51,8 @@ assert_patched() {
 		echo "expected one persistent marker in $file, found $marker_count" >&2
 		exit 1
 	}
+
+	system_js_has_single_ordered_marker "$file"
 }
 
 assert_idempotent() {
@@ -71,6 +74,7 @@ assert_idempotent() {
 
 assert_idempotent "$tmp_dir/unpatched.js"
 assert_idempotent "$tmp_dir/broken.js"
+assert_idempotent "$tmp_dir/stale-marker.js"
 
 if [ -n "${JSMIN:-}" ]; then
 	[ -x "$JSMIN" ] || {
