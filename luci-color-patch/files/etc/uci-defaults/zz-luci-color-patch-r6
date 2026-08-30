@@ -1,0 +1,7 @@
+#!/bin/sh
+
+BOOTSTRAP=/usr/libexec/luci-color-patch/bootstrap-r6
+
+[ -x "$BOOTSTRAP" ] || exit 1
+
+NO_BACKUP=1 RESTART_SERVICES=0 "$BOOTSTRAP"

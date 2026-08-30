@@ -1,0 +1,85 @@
+#!/bin/sh
+
+set -eu
+
+root="${ROOT:-/}"
+root="${root%/}"
+payload_dir="$root/usr/share/luci-color-patch/r6"
+apply_source="$payload_dir/apply"
+apply_target="$root/usr/libexec/luci-color-patch/apply"
+
+copy_payload() {
+	source_file="$1"
+	target_file="$2"
+	target_mode="$3"
+	tmp_file="$target_file.tmp.$$"
+
+	[ -f "$source_file" ] || {
+		echo "Missing luci-color-patch r6 payload: $source_file" >&2
+		exit 1
+	}
+
+	mkdir -p "$(dirname "$target_file")"
+	cp -fp "$source_file" "$tmp_file"
+	chmod "$target_mode" "$tmp_file"
+	mv -f "$tmp_file" "$target_file"
+	cmp -s "$source_file" "$target_file"
+}
+
+cleanup_legacy_selfrestore() {
+	if [ -z "$root" ] && [ -x /etc/init.d/luci-color-patch ]; then
+		/etc/init.d/luci-color-patch disable >/dev/null 2>&1 || true
+	fi
+
+	rm -f \
+		"$root/etc/rc.d/S99luci-color-patch" \
+		"$root/etc/init.d/luci-color-patch" \
+		"$root/lib/upgrade/keep.d/luci-color-patch" \
+		"$root/usr/libexec/luci-color-patch/reinstall" \
+		"$root/usr/share/luci-color-patch/luci-color-patch.apk" \
+		"$root/etc/luci-color-patch/luci-color-patch.apk"
+
+	rmdir "$root/etc/luci-color-patch" 2>/dev/null || true
+}
+
+restore_selfrestore_payload() {
+	copy_payload "$payload_dir/reinstall" "$root/usr/libexec/luci-color-patch/reinstall" 0755
+	copy_payload "$payload_dir/init" "$root/etc/init.d/luci-color-patch" 0755
+	copy_payload "$payload_dir/keep" "$root/lib/upgrade/keep.d/luci-color-patch" 0644
+
+	if [ -f "$payload_dir/seed.apk" ]; then
+		copy_payload "$payload_dir/seed.apk" "$root/usr/share/luci-color-patch/luci-color-patch.apk" 0644
+		copy_payload "$payload_dir/seed.apk" "$root/etc/luci-color-patch/luci-color-patch.apk" 0600
+	fi
+
+	if [ -z "$root" ]; then
+		/etc/init.d/luci-color-patch enable >/dev/null 2>&1
+	fi
+}
+
+[ -f "$apply_source" ] || {
+	echo "Missing luci-color-patch r6 apply payload" >&2
+	exit 1
+}
+
+variant=plain
+[ -f "$payload_dir/reinstall" ] && variant=selfrestore
+
+copy_payload "$apply_source" "$apply_target" 0755
+
+NO_BACKUP="${NO_BACKUP:-1}" \
+RESTART_SERVICES="${RESTART_SERVICES:-0}" \
+ROOT="${root:-/}" \
+"$apply_target"
+
+rm -f "$root/etc/uci-defaults/99-luci-color-patch"
+
+if [ "$variant" = selfrestore ]; then
+	restore_selfrestore_payload
+else
+	cleanup_legacy_selfrestore
+fi
+
+rm -f "$root/tmp/luci-indexcache" "$root/tmp"/luci-indexcache.* 2>/dev/null || true
+
+echo "LuCI color patch r6 bootstrap complete ($variant)."
