@@ -37,10 +37,17 @@ assert_patched() {
 	node --check "$file"
 
 	grep -qE "o[[:space:]]*\.[[:space:]]*value[[:space:]]*\([[:space:]]*uci[[:space:]]*\.[[:space:]]*get[[:space:]]*\([[:space:]]*'luci'[[:space:]]*,[[:space:]]*'themes'[[:space:]]*,[[:space:]]*t[[:space:]]*\)[[:space:]]*,[[:space:]]*t[[:space:]]*\)[[:space:]]*;" "$file"
+	grep -q 'luci-colorpatch-system-v8' "$file"
 
 	palette_count="$(awk '{ count += gsub(/const[[:space:]]+accentPaletteChoices/, "&") } END { print count + 0 }' "$file")"
 	[ "$palette_count" -eq 1 ] || {
 		echo "expected one accent palette in $file, found $palette_count" >&2
+		exit 1
+	}
+
+	marker_count="$(awk '{ count += gsub(/const[[:space:]]+luciColorPatchSystemMarker/, "&") } END { print count + 0 }' "$file")"
+	[ "$marker_count" -eq 1 ] || {
+		echo "expected one persistent marker in $file, found $marker_count" >&2
 		exit 1
 	}
 }
@@ -64,5 +71,23 @@ assert_idempotent() {
 
 assert_idempotent "$tmp_dir/unpatched.js"
 assert_idempotent "$tmp_dir/broken.js"
+
+if [ -n "${JSMIN:-}" ]; then
+	[ -x "$JSMIN" ] || {
+		echo "JSMIN is not executable: $JSMIN" >&2
+		exit 1
+	}
+
+	"$JSMIN" < "$tmp_dir/unpatched.js" > "$tmp_dir/current-minified.js"
+	assert_patched "$tmp_dir/current-minified.js"
+	SYSTEM_JS="$tmp_dir/current-minified.js"
+	before_hash="$(sha256sum "$SYSTEM_JS" | awk '{ print $1 }')"
+	patch_system_js
+	after_hash="$(sha256sum "$SYSTEM_JS" | awk '{ print $1 }')"
+	[ "$before_hash" = "$after_hash" ] || {
+		echo "current minified system.js was unexpectedly rewritten" >&2
+		exit 1
+	}
+fi
 
 echo "system.js patch tests passed"
