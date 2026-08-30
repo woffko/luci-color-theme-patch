@@ -16,8 +16,8 @@ setting. Install only one variant at a time.
 
 | Variant | Branch | Release asset | Sysupgrade behavior |
 | --- | --- | --- | --- |
-| `selfrestore` | `main` | `luci-color-patch-selfrestore-1.2.2-r5-openwrt-25.12-noarch.apk` | Preserves a cached APK and reinstalls itself on first boot after sysupgrade. |
-| `plain` | `no-sysupgrade-restore` | `luci-color-patch-plain-1.2.2-r5-openwrt-25.12-noarch.apk` | Does not preserve or reinstall itself; reinstall manually or include it in the image. |
+| `selfrestore` | `main` | `luci-color-patch-selfrestore-1.2.2-r6-openwrt-25.12-noarch.apk` | Preserves a cached APK and reinstalls itself on first boot after sysupgrade. |
+| `plain` | `no-sysupgrade-restore` | `luci-color-patch-plain-1.2.2-r6-openwrt-25.12-noarch.apk` | Does not preserve or reinstall itself; reinstall manually or include it in the image. |
 
 The package installs an idempotent runtime patcher, a `uci-defaults` hook, an
 init script and a preserved local APK cache. It replaces the LuCI Bootstrap
@@ -30,12 +30,14 @@ The repository also carries a build-time helper that patches LuCI feed sources
 before image generation, which makes the generated sysupgrade image contain the
 patched LuCI files immediately.
 
-Release `1.2.2-r5` preserves the original LuCI theme-list statement when the
-runtime patch is reapplied to a minified `system.js`. It also repairs files
-damaged by the previous repeated-application path before installing the accent
-palette again. A JavaScript version sentinel survives LuCI minification, so a
-validated current patch is left untouched instead of being rewritten.
-The selfrestore package embeds a non-recursive r5 seed APK, avoiding the nested
+Release `1.2.2-r5` made the JavaScript patch idempotent and repairable. Release
+`1.2.2-r6` adds a versioned first-boot bootstrap for sysupgrade migrations. It
+runs after legacy hooks, restores the current patcher from a path that old keep
+lists cannot overwrite, repairs LuCI, and removes stale selfrestore files when
+the image contains the plain variant. The selfrestore keep list no longer
+preserves mutable patch or `uci-defaults` files.
+
+The selfrestore package embeds a non-recursive r6 seed APK, avoiding the nested
 APK growth of the earlier release builds.
 
 ## Supported Platforms
@@ -68,7 +70,7 @@ Install an unsigned local build with:
 
 ```sh
 apk add --allow-untrusted --force-overwrite --force-reinstall \
-  ./luci-color-patch-selfrestore-1.2.2-r5-openwrt-25.12-noarch.apk
+  ./luci-color-patch-selfrestore-1.2.2-r6-openwrt-25.12-noarch.apk
 ```
 
 The package post-install script enables `/etc/init.d/luci-color-patch`, refreshes
@@ -83,7 +85,9 @@ test -f /etc/luci-color-patch/luci-color-patch.apk && echo cache-ok
 ```
 
 After sysupgrade, `/lib/upgrade/keep.d/luci-color-patch` preserves the cached
-APK and the small restore scripts. On the first boot, the init script runs:
+APK and only the small restore scripts. The mutable patcher and first-boot hook
+come from the new image or the cached APK. On the first boot, the init script
+runs:
 
 ```sh
 /usr/libexec/luci-color-patch/reinstall

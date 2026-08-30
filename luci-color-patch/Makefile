@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-color-patch
 PKG_VERSION:=1.2.2
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
@@ -31,16 +31,23 @@ endef
 define Package/luci-color-patch/install
 	$(INSTALL_DIR) $(1)/usr/libexec/luci-color-patch
 	$(INSTALL_BIN) ./files/usr/libexec/luci-color-patch/apply $(1)/usr/libexec/luci-color-patch/apply
+	$(INSTALL_BIN) ./files/usr/libexec/luci-color-patch/bootstrap-r6 $(1)/usr/libexec/luci-color-patch/bootstrap-r6
 	$(INSTALL_BIN) ./files/usr/libexec/luci-color-patch/reinstall $(1)/usr/libexec/luci-color-patch/reinstall
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/etc/init.d/luci-color-patch $(1)/etc/init.d/luci-color-patch
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(INSTALL_BIN) ./files/etc/uci-defaults/99-luci-color-patch $(1)/etc/uci-defaults/99-luci-color-patch
+	$(INSTALL_BIN) ./files/etc/uci-defaults/zz-luci-color-patch-r6 $(1)/etc/uci-defaults/zz-luci-color-patch-r6
 	$(INSTALL_DIR) $(1)/lib/upgrade/keep.d
 	$(INSTALL_DATA) ./files/lib/upgrade/keep.d/luci-color-patch $(1)/lib/upgrade/keep.d/luci-color-patch
+	$(INSTALL_DIR) $(1)/usr/share/luci-color-patch/r6
+	$(INSTALL_BIN) ./files/usr/libexec/luci-color-patch/apply $(1)/usr/share/luci-color-patch/r6/apply
+	$(INSTALL_BIN) ./files/usr/libexec/luci-color-patch/reinstall $(1)/usr/share/luci-color-patch/r6/reinstall
+	$(INSTALL_BIN) ./files/etc/init.d/luci-color-patch $(1)/usr/share/luci-color-patch/r6/init
+	$(INSTALL_DATA) ./files/lib/upgrade/keep.d/luci-color-patch $(1)/usr/share/luci-color-patch/r6/keep
 	if [ -f ./files/usr/share/luci-color-patch/luci-color-patch.apk ]; then \
 		$(INSTALL_DIR) $(1)/usr/share/luci-color-patch; \
 		$(INSTALL_DATA) ./files/usr/share/luci-color-patch/luci-color-patch.apk $(1)/usr/share/luci-color-patch/luci-color-patch.apk; \
+		$(INSTALL_DATA) ./files/usr/share/luci-color-patch/luci-color-patch.apk $(1)/usr/share/luci-color-patch/r6/seed.apk; \
 	fi
 endef
 
@@ -49,11 +56,8 @@ define Package/luci-color-patch/postinst
 
 [ -n "$${IPKG_INSTROOT}" ] && exit 0
 
-[ -x /etc/init.d/luci-color-patch ] && /etc/init.d/luci-color-patch enable >/dev/null 2>&1 || true
-if [ "$${LUCI_COLOR_PATCH_SELF_REINSTALL}" != "1" ]; then
-	[ -x /usr/libexec/luci-color-patch/reinstall ] && /usr/libexec/luci-color-patch/reinstall --refresh-cache || true
-fi
-[ -x /usr/libexec/luci-color-patch/apply ] && NO_BACKUP=1 RESTART_SERVICES=1 /usr/libexec/luci-color-patch/apply || true
+[ -x /usr/libexec/luci-color-patch/bootstrap-r6 ] || exit 1
+NO_BACKUP=1 RESTART_SERVICES=1 /usr/libexec/luci-color-patch/bootstrap-r6
 
 exit 0
 endef
