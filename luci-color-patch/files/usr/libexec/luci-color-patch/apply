@@ -981,6 +981,13 @@ EOF
 				done = 1
 			}
 		}
+		function has_theme_value(s) {
+			return s ~ /o[[:space:]]*\.[[:space:]]*value[[:space:]]*\([[:space:]]*uci[[:space:]]*\.[[:space:]]*get[[:space:]]*\([[:space:]]*'\''luci'\''[[:space:]]*,[[:space:]]*'\''themes'\''[[:space:]]*,[[:space:]]*t[[:space:]]*\)[[:space:]]*,[[:space:]]*t[[:space:]]*\)[[:space:]]*;/
+		}
+		function print_theme_value() {
+			print "\t\t\to.value(uci.get('\''luci'\'', '\''themes'\'', t), t);"
+			theme_value_seen = 1
+		}
 		function strip_palette_tail(s) {
 			if (match(s, /o[[:space:]]*\.[[:space:]]*default[[:space:]]*=[[:space:]]*'\''blue'\''[[:space:]]*;/)) {
 				s = substr(s, RSTART + RLENGTH)
@@ -1056,9 +1063,18 @@ EOF
 					continue
 				}
 
-				if (line ~ /const[[:space:]]+accentPaletteChoices[[:space:]]*=[[:space:]]*\[/) {
+				if (match(line, /const[[:space:]]+accentPaletteChoices[[:space:]]*=[[:space:]]*\[/)) {
+					prefix = substr(line, 1, RSTART - 1)
+					if (has_theme_value(prefix))
+						theme_value_seen = 1
+					if (prefix !~ /^[[:space:]]*$/)
+						print prefix
+					if (!theme_value_seen)
+						print_theme_value()
+
 					print_block_once()
 					skip_mode = "palette"
+					line = substr(line, RSTART)
 					line = strip_palette_tail(line)
 					if (skip_mode != "")
 						next
@@ -1069,6 +1085,7 @@ EOF
 
 				if (!done && match(line, /o[[:space:]]*\.[[:space:]]*value[[:space:]]*\([[:space:]]*uci[[:space:]]*\.[[:space:]]*get[[:space:]]*\([[:space:]]*'\''luci'\''[[:space:]]*,[[:space:]]*'\''themes'\''[[:space:]]*,[[:space:]]*t[[:space:]]*\)[[:space:]]*,[[:space:]]*t[[:space:]]*\)[[:space:]]*;/)) {
 					print substr(line, 1, RSTART + RLENGTH - 1)
+					theme_value_seen = 1
 					print_block_once()
 					line = substr(line, RSTART + RLENGTH)
 					if (line == "")
@@ -1092,12 +1109,14 @@ EOF
 
 			if (line ~ /s[[:space:]]*\.[[:space:]]*taboption[[:space:]]*\([[:space:]]*'\''timesync'\''[[:space:]]*,[[:space:]]*form[[:space:]]*\.[[:space:]]*Flag[[:space:]]*,[[:space:]]*'\''enabled'\''/)
 				seen_ntp_enabled = 1
+			if (has_theme_value(line))
+				theme_value_seen = 1
 
 			repair_broken_ntp_prefix(line)
 			print line
 		}
 		END {
-			if (!done)
+			if (!done || !theme_value_seen)
 				exit 1
 		}
 	' "$SYSTEM_JS" > "$tmp" || {
@@ -1105,6 +1124,12 @@ EOF
 		echo "Failed to inject accent selector into $SYSTEM_JS" >&2
 		exit 1
 	}
+
+	if ! grep -qE "o[[:space:]]*\.[[:space:]]*value[[:space:]]*\([[:space:]]*uci[[:space:]]*\.[[:space:]]*get[[:space:]]*\([[:space:]]*'luci'[[:space:]]*,[[:space:]]*'themes'[[:space:]]*,[[:space:]]*t[[:space:]]*\)[[:space:]]*,[[:space:]]*t[[:space:]]*\)[[:space:]]*;" "$tmp"; then
+		rm -f "$tmp"
+		echo "Failed to preserve the LuCI theme selector in $SYSTEM_JS" >&2
+		exit 1
+	fi
 
 	mv "$tmp" "$SYSTEM_JS"
 }
@@ -1234,4 +1259,6 @@ main() {
 	echo "Config option: luci.main.accent"
 }
 
-main "$@"
+if [ "${LUCI_COLOR_PATCH_LIBRARY_ONLY:-0}" != "1" ]; then
+	main "$@"
+fi
